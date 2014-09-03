@@ -1,27 +1,27 @@
 
-* Påbörjad
+* PÃ¥bÃ¶rjad
 + Klar
 - Skippad
 
 + Planera
 * Prata skit
-Skapa UML dokument, fixa DIA
+* Skapa UML dokument, fixa DIA
 Skriva scenario
-Skapa UML för stack allokator
-Skapa UML för pool allokator
-Definiera interface för Pool allokator
-Definiera interface för Stack alloakator
-Skriva program för prestandamätningar
+Skapa UML fÃ¶r stack allokator
+Skapa UML fÃ¶r pool allokator
+Definiera interface fÃ¶r Pool allokator
+Definiera interface fÃ¶r Stack alloakator
+Skriva program fÃ¶r prestandamÃ¤tningar
 
 Implementera Stack allokator
 
 Implementera Pool allokator
 
-Lägg till stöd för multipla trådar
+LÃ¤gg till stÃ¶d fÃ¶r multipla trÃ¥dar
 
-Skapa skript för diagram från mätdata
+Skapa skript fÃ¶r diagram frÃ¥n mÃ¤tdata
 
 Testa med existerande projekt
 
-Slutföra UML
+SlutfÃ¶ra UML
 Skriva rapport
