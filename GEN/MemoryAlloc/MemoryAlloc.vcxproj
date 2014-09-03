@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="include\MemoryAlloc.h" />
     <ClInclude Include="include\StackAllocator.h" />
+    <ClInclude Include="include\SpinLock.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\test.cpp" />

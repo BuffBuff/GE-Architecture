@@ -22,5 +22,8 @@
     <ClInclude Include="include\MemoryAlloc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\SpinLock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

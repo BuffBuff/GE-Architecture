@@ -1,4 +1,4 @@
-
+﻿
 * Påbörjad
 + Klar
 - Skippad
@@ -10,14 +10,14 @@ Skriva scenario
 Skapa UML för stack allokator
 Skapa UML för pool allokator
 Definiera interface för Pool allokator
-Definiera interface för Stack alloakator
++ Definiera interface för Stack alloakator
 Skriva program för prestandamätningar
 
-Implementera Stack allokator
++ Implementera Stack allokator
 
 Implementera Pool allokator
 
-Lägg till stöd för multipla trådar
+* Lägg till stöd för multipla trådar
 
 Skapa skript för diagram från mätdata
 

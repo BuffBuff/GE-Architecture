@@ -1,5 +1,8 @@
 #include <cstdint>
+#include <mutex>
 #include <vector>
+
+#include "SpinLock.h"
 
 namespace GENA
 {
@@ -43,6 +46,7 @@ namespace GENA
 
 	private:
 		std::vector<char> buffer;
+		SpinLock spin;
 	};
 
 	inline StackAllocator::StackAllocator(uint32_t stackSizeBytes)
@@ -52,6 +56,8 @@ namespace GENA
 
 	inline void* StackAllocator::alloc(uint32_t sizeBytes)
 	{
+		std::lock_guard<SpinLock> lock(spin);
+
 		if (sizeBytes > buffer.capacity() - buffer.size())
 		{
 			throw std::exception("No more stack memory for you!");
@@ -64,16 +70,22 @@ namespace GENA
 
 	inline StackAllocator::Marker StackAllocator::getMarker()
 	{
+		std::lock_guard<SpinLock> lock(spin);
+
 		return buffer.size();
 	}
 
 	inline void StackAllocator::freeToMarker(Marker marker)
 	{
+		std::lock_guard<SpinLock> lock(spin);
+
 		buffer.resize(marker);
 	}
 
 	inline void StackAllocator::clear()
 	{
+		std::lock_guard<SpinLock> lock(spin);
+
 		buffer.clear();
 	}
 }
