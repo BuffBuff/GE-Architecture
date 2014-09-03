@@ -1,0 +1,17 @@
+Senario 1: Allocate and release memory
+Description:
+Allocate a large amount of same sized data and then release it in a diffrent order created in.
+
+Test scenario:
+We will test the performance between the c++ malloc function against our alloc function and measure the time it takes to alloc the same amount of objets/data.
+
+We will also test the capability of releasing data in a different order than created.
+
+
+Senario 2: Work by frame
+Description:
+Allocate data which to be used in a single frame and then deallocate the data before the next frame.
+
+Test scenario:
+
+
