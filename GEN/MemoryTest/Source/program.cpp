@@ -4,7 +4,7 @@
 
 int main(int argc, char* argv[])
 {
-	std::cout << getMessage() << '\n';
+	std::cout << GENA::getMessage() << '\n';
 
 	return 0;
 };

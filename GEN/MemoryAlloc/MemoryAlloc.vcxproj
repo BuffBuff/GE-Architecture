@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MemoryAlloc.h" />
+    <ClInclude Include="include\StackAllocator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\test.cpp" />

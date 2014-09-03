@@ -1,6 +1,11 @@
 #include "MemoryAlloc.h"
 
-const char* getMessage()
+namespace GENA
 {
-	return "Hello from memory alloc library!";
+
+	const char* getMessage()
+	{
+		return "Hello from memory alloc library!";
+	}
+
 }

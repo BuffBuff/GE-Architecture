@@ -1,2 +1,7 @@
 
-const char* getMessage();
+namespace GENA
+{
+
+	const char* getMessage();
+
+}
