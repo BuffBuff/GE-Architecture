@@ -11,13 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\MemoryAlloc.h" />
     <ClInclude Include="include\PoolAllocator.h" />
     <ClInclude Include="include\StackAllocator.h" />
     <ClInclude Include="include\SpinLock.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\test.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{99A7251D-6455-43AD-A593-AEBDAC5FF9E3}</ProjectGuid>
