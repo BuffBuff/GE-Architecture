@@ -1,0 +1,31 @@
+reset
+set title ''
+#set autoscale
+set yrange[0:12]
+## Histograms
+set style data histogram
+set style histogram cluster gap 1
+set style fill solid border -1
+set boxwidth 0.8
+## 
+
+## Lines
+
+set xlabel "Megabytes"
+set ylabel "Seconds"
+#unset xtic
+set grid ytics lt 0 lw 1
+#set grid xtics lt 0 lw 1
+set border 2
+
+plot "testdata.dat" using 2:xticlabels(1) title 'IQ' lc rgb "#880000",\
+	"testdata.dat" using 3 title 'Test' lc rgb "#008800",\
+	"testdata.dat" using 4 title 'Line' lc rgb "#000088"
+
+#plot "testdata.dat" using 1 title 'IQ' with linespoints lc rgb "#880000" lw 2, \
+	"testdata.dat" using 2 title 'Test' with linespoints lc rgb "#008800",\
+	"testdata.dat" using 3 title 'Line' with linespoints lc rgb "#000088"
+	
+#plot "testdata.dat" using 1 title 'IQ' with points lc rgb "#880000" lw 2, \
+	"testdata.dat" using 2 title 'Test' with points lc rgb "#008800",\
+	"testdata.dat" using 3 title 'Line' with points lc rgb "#000088"
