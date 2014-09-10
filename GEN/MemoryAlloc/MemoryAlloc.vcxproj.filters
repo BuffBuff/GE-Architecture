@@ -25,5 +25,8 @@
     <ClInclude Include="include\SpinLock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\PoolAllocator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

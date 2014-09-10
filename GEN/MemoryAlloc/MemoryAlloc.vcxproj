@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MemoryAlloc.h" />
+    <ClInclude Include="include\PoolAllocator.h" />
     <ClInclude Include="include\StackAllocator.h" />
     <ClInclude Include="include\SpinLock.h" />
   </ItemGroup>

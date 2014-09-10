@@ -1,12 +1,11 @@
 #include <iostream>
 
 #include "MemoryAlloc.h"
+#include "PoolAllocator.h"
 #include "StackAllocator.h"
 
-int main(int argc, char* argv[])
+void testStackAllocator()
 {
-	std::cout << GENA::getMessage() << '\n';
-
 	GENA::StackAllocator stack(1024 * 1024);
 
 	for (int i = 0; i < 1024; ++i)
@@ -40,6 +39,39 @@ int main(int argc, char* argv[])
 	{
 		std::cout << ex.what() << std::endl;
 	}
+}
+
+void testPoolAllocator()
+{
+	GENA::PoolAllocator<1024> pool(1024);
+
+	struct TestObj
+	{
+		char data[512];
+	};
+
+	std::vector<TestObj*> objs;
+
+	for (int i = 0; i < 1024; ++i)
+	{
+		objs.push_back(new(pool.alloc()) TestObj);
+		objs.back()->data[13] = '@';
+	}
+
+	for (TestObj* obj : objs)
+	{
+		assert(obj->data[13] == '@');
+		obj->~TestObj();
+		pool.free(obj);
+	}
+}
+
+int main(int argc, char* argv[])
+{
+	std::cout << GENA::getMessage() << '\n';
+
+	testStackAllocator();
+	testPoolAllocator();
 
 	return 0;
 };
