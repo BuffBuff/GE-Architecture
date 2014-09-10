@@ -25,3 +25,5 @@
 *.sdf
 *.opensdf
 *.suo
+
+*.*~

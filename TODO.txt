@@ -5,10 +5,10 @@
 
 + Planera
 * Prata skit
-* Skapa UML dokument, fixa DIA
-Skriva scenario
-Skapa UML för stack allokator
-Skapa UML för pool allokator
++ Skapa UML dokument, fixa DIA
+* Skriva scenario
++ Skapa UML för stack allokator
++ Skapa UML för pool allokator
 + Definiera interface för Pool allokator
 + Definiera interface för Stack alloakator
 Skriva program för prestandamätningar

@@ -1,4 +1,4 @@
-Senario 1: Allocate and release memory
+Scenario 1: Allocate and release memory
 Description:
 Allocate a large amount of same sized data and then release it in a diffrent order created in.
 
@@ -8,10 +8,29 @@ We will test the performance between the c++ malloc function against our alloc f
 We will also test the capability of releasing data in a different order than created.
 
 
-Senario 2: Work by frame
+Scenario 2: Work by frame
 Description:
 Allocate data which to be used in a single frame and then deallocate the data before the next frame.
 
 Test scenario:
+Test the marker system by setting a marker and allocate memory for one frame, then clear to marker.
+By get a new marker and compare it to the old one.
+
+
+
+Stack allocator Scenario: without memory allinement
+Description:
+Check the performance inpact when not using any form of memory size checks when allocate new data on the stack.
+
+Test scenario:
+
+
+
+Stack allocator Scenario: with memory allinement
+Description:
+Check the performance inpact when using any form of memory size checks when allocating new data on the stack.
+
+Test scenario:
+
 
 
