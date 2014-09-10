@@ -7,6 +7,11 @@ We will test the performance between the c++ malloc function against our alloc f
 
 We will also test the capability of releasing data in a different order than created.
 
+Variables:
+- Size per object
+- Number of objects
+- Allocator
+- Allocation/deallocation pattern
 
 Scenario 2: Work by frame
 Description:

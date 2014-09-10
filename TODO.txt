@@ -11,7 +11,7 @@
 + Skapa UML för pool allokator
 + Definiera interface för Pool allokator
 + Definiera interface för Stack alloakator
-Skriva program för prestandamätningar
+* Skriva program för prestandamätningar
 
 + Implementera Stack allokator
 

@@ -1,8 +1,12 @@
+#include <fstream>
 #include <iostream>
 
 #include "MemoryAlloc.h"
 #include "PoolAllocator.h"
 #include "StackAllocator.h"
+
+#include "DataTable.h"
+#include "Timer.h"
 
 void testStackAllocator()
 {
@@ -70,8 +74,18 @@ int main(int argc, char* argv[])
 {
 	std::cout << GENA::getMessage() << '\n';
 
-	testStackAllocator();
-	testPoolAllocator();
+	Timer t;
+	t.start();
+
+	for (int i = 0; i < 1; ++i)
+	{
+		testStackAllocator();
+		testPoolAllocator();
+	}
+
+	t.stop();
+
+	std::cout << "Took " << t.micros() << " mics.\n";
 
 	return 0;
 };

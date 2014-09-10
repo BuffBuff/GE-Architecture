@@ -78,12 +78,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\DataTable.cpp" />
     <ClCompile Include="Source\program.cpp" />
+    <ClCompile Include="Source\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MemoryAlloc\MemoryAlloc.vcxproj">
       <Project>{99a7251d-6455-43ad-a593-aebdac5ff9e3}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\DataTable.h" />
+    <ClInclude Include="Source\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
