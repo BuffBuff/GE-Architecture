@@ -1,7 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <mutex>
 #include <vector>
+
+#include "SpinLock.h"
 
 namespace GENA
 {
@@ -30,6 +33,8 @@ namespace GENA
 		 */
 		void* alloc()
 		{
+			std::lock_guard<SpinLock> lock(spin);
+
 			if (!freeList)
 			{
 				throw new std::exception("No more pool memory for you!");
@@ -46,6 +51,8 @@ namespace GENA
 		 */
 		void free(void* mem)
 		{
+			std::lock_guard<SpinLock> lock(spin);
+
 			if (!mem)
 			{
 				return;
@@ -68,5 +75,7 @@ namespace GENA
 
 		std::vector<Chunk> memoryBuffer;
 		Chunk* freeList;
+		
+		SpinLock spin;
 	};
 }
