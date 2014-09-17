@@ -1,0 +1,17 @@
+General approach
+We will code a prototype resource manager, our resource manager from big-game course will serve as inspiration due
+to the similiarties of how the prototype resourse manager will function.
+
+This assignment will use the allocators from the previous assignment.
+
+We are debating whether we should use compressed or not compressed assets file. Will we focus on performance or memory management?
+
+Considerations
+Our old resource manager has no support for multi-threading. 
+
+Testing scenarios
+Loading different levels. The levels should have some resources in common to each other to test
+that the common resources isn't deallocated when loading the level and this is done with streaming
+content in the background.
+
+Another test scenario could be having random allocation and deallocating of resources.
