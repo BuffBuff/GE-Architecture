@@ -79,11 +79,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\DataTable.cpp" />
+    <ClCompile Include="Source\PoolAllocatorTest.cpp" />
     <ClCompile Include="Source\program.cpp" />
     <ClCompile Include="Source\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\DataTable.h" />
+    <ClInclude Include="Source\PoolAllocatorTest.h" />
     <ClInclude Include="Source\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
