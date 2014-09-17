@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <iostream>
+#include <numeric>
+#include <random>
 #include <vector>
 
 #include "DataTable.h"
@@ -138,9 +140,58 @@ std::vector<StackAllocRec> generateSameSizePattern(unsigned int numObjects, unsi
 	return res;
 };
 
+template <class A, unsigned int N>
+unsigned int arrSize(const A (&a)[N])
+{
+	return N;
+}
+
+std::vector<StackAllocRec> generateRandomSizePattern(unsigned int numObjects)
+{
+	std::cout << "Generating random pattern\n";
+
+	std::vector<StackAllocRec> res;
+	res.reserve(numObjects);
+
+	std::default_random_engine randEng(1);
+
+	unsigned int sizes[] =
+	{
+		4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 6, 20, 33, 100
+	};
+
+	unsigned int sizeWeight[] =
+	{
+		200, 200, 120, 120, 60, 30, 20, 10, 7, 5, 10, 10,  10, 10
+	};
+
+	unsigned int nw = arrSize(sizeWeight);
+
+	std::discrete_distribution<unsigned int> dist(nw, 0, 1,
+		[&sizeWeight, &nw] (double val)
+		{
+			return (double)sizeWeight[(int)(val * nw)];
+		});
+
+	for (unsigned int i = 0; i < numObjects; ++i)
+	{
+		StackAllocRec rec = {sizes[dist(randEng)]};
+		res.push_back(rec);
+	}
+
+	return res;
+}
+
 void testStackAllocator()
 {
 	const unsigned int numObjects = 1024 * 1024;
 	const unsigned int objectSize = 16;
 	runTestSet(generateSameSizePattern(numObjects, objectSize), numObjects * objectSize, "stackAllocatorSimple.csv");
+	std::vector<StackAllocRec> randSizePattern = generateRandomSizePattern(numObjects);
+	unsigned int sum = std::accumulate(randSizePattern.begin(), randSizePattern.end(), 0,
+		[] (unsigned int partialSum, const StackAllocRec& val)
+		{
+			return partialSum + val.size;
+		});
+	runTestSet(randSizePattern, sum, "stackAllocatorRand.csv");
 }
