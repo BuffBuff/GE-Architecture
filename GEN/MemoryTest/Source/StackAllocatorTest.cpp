@@ -46,18 +46,19 @@ struct CStackAllocator
 };
 
 template <class Allocator>
-void runStackAllocationTestRun(Allocator& allocator, const std::vector<StackAllocRec>& pattern)
+void runStackAllocationTestRun(Allocator& allocator, const std::vector<StackAllocRec>& pattern, unsigned int numObjects)
 {
 	Allocator::Marker marker = allocator.getMarker();
-	for (const StackAllocRec& rec : pattern)
+	for (unsigned int i = 0; i < numObjects; ++i)
 	{
-		allocator.alloc(rec.size);
+		allocator.alloc(pattern[i].size);
 	}
 	allocator.freeToMarker(marker);
 }
 
 template <class Allocator>
-float timeStackTests(Allocator& allocator, float testTimeSec, Timer& timer, const std::vector<StackAllocRec>& pattern)
+float timeStackTests(Allocator& allocator, float testTimeSec, Timer& timer,
+					 const std::vector<StackAllocRec>& pattern, unsigned int numObjects)
 {
 	typedef std::chrono::high_resolution_clock cl;
 
@@ -68,7 +69,7 @@ float timeStackTests(Allocator& allocator, float testTimeSec, Timer& timer, cons
 	timer.start();
 	while (cl::now() < stopTime)
 	{
-		runStackAllocationTestRun(allocator, pattern);
+		runStackAllocationTestRun(allocator, pattern, numObjects);
 		++numRuns;
 	}
 	timer.stop();
@@ -79,10 +80,10 @@ float timeStackTests(Allocator& allocator, float testTimeSec, Timer& timer, cons
 template <class Allocator>
 void timeAndRecord(Allocator& allocator, float testTimeSec, Timer& timer, DataTable& table,
 				   unsigned int column, unsigned int row,
-				   const std::vector<StackAllocRec>& pattern)
+				   const std::vector<StackAllocRec>& pattern, unsigned int numObjects)
 {
-	float time = timeStackTests(allocator, testTimeSec, timer, pattern);
-	table.recordValue(column, row, time);
+	float time = timeStackTests(allocator, testTimeSec, timer, pattern, numObjects);
+	table.recordValue(column, row, time / numObjects);
 }
 
 void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSize, const std::string& filename)
@@ -90,24 +91,31 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 	std::cout << "Running test set...";
 
 	std::vector<std::string> headers;
-	headers.push_back("ObjectSize");
+	headers.push_back("NumObjects");
 	headers.push_back("StackAllocator");
 	headers.push_back("CStackAllocator");
 
 	DataTable table(headers);
 
-	const float runTimePerTestSec = 10.f;
-	const unsigned int numObjects = 1024;
+	const float runTimePerTestSec = 0.5f;
+	const unsigned int maxNumObjects = pattern.size();
 
 	GENA::StackAllocator stackAllocator(stackSize);
 	CStackAllocator cStack;
-	cStack.allocations.reserve(numObjects);
+	cStack.allocations.reserve(maxNumObjects);
 
 	Timer t;
 
-	table.recordValue(0, 0, "---");
-	timeAndRecord(stackAllocator, runTimePerTestSec, t, table, 1, 0, pattern);
-	timeAndRecord(cStack, runTimePerTestSec, t, table, 2, 0, pattern);
+	unsigned int numObjects = 128;
+	unsigned int row = 0;
+	while (numObjects <= maxNumObjects)
+	{
+		table.recordValue(0, row, numObjects);
+		timeAndRecord(stackAllocator, runTimePerTestSec, t, table, 1, row, pattern, numObjects);
+		timeAndRecord(cStack, runTimePerTestSec, t, table, 2, row, pattern, numObjects);
+		++row;
+		numObjects *= 2;
+	}
 
 	table.printCSV(std::ofstream(filename));
 
@@ -132,7 +140,7 @@ std::vector<StackAllocRec> generateSameSizePattern(unsigned int numObjects, unsi
 
 void testStackAllocator()
 {
-	const unsigned int numObjects = 1024;
+	const unsigned int numObjects = 1024 * 1024;
 	const unsigned int objectSize = 16;
 	runTestSet(generateSameSizePattern(numObjects, objectSize), numObjects * objectSize, "stackAllocatorSimple.csv");
 }
