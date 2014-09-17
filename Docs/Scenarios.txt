@@ -21,7 +21,10 @@ Test scenario:
 Test the marker system by setting a marker and allocate memory for one frame, then clear to marker.
 By get a new marker and compare it to the old one.
 
-
+- Size per object
+- Number of objects
+- Allocator
+- Allocation pattern
 
 Stack allocator Scenario: without memory allinement
 Description:
