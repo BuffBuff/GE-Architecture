@@ -1,11 +1,20 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <random>
 
 #include "PoolAllocator.h"
 #include "StackAllocator.h"
 
 #include "DataTable.h"
 #include "Timer.h"
+
+struct AllocRec
+{
+	bool doAlloc;
+	unsigned int id;
+	unsigned int time;
+};
 
 void testStackAllocator()
 {
@@ -45,26 +54,29 @@ void testStackAllocator()
 }
 
 template <class Allocator>
-void runPoolAllocationTestRun(unsigned int numObjects, Allocator& allocator, std::vector<void*>& allocStorage)
+void runPoolAllocationTestRun(unsigned int numObjects, Allocator& allocator,
+							  std::vector<void*>& allocStorage, const std::vector<AllocRec>& pattern)
 {
-	for (unsigned int i = 0; i < numObjects; ++i)
+	for (const AllocRec& rec : pattern)
 	{
-		allocStorage.push_back(allocator.alloc());
+		if (rec.doAlloc)
+		{
+			allocStorage[rec.id] = allocator.alloc();
+		}
+		else
+		{
+			allocator.free(allocStorage[rec.id]);
+		}
 	}
-
-	for (void* alloc : allocStorage)
-	{
-		allocator.free(alloc);
-	}
-	allocStorage.clear();
 }
 
 template <class Allocator>
-void runPoolAllocationTestRuns(unsigned int numObjects, Allocator& allocator, std::vector<void*>& allocStorage, unsigned int numRuns)
+void runPoolAllocationTestRuns(unsigned int numObjects, Allocator& allocator, std::vector<void*>& allocStorage,
+							   unsigned int numRuns, const std::vector<AllocRec>& pattern)
 {
 	for (unsigned int i = 0; i < numRuns; ++i)
 	{
-		runPoolAllocationTestRun(numObjects, allocator, allocStorage);
+		runPoolAllocationTestRun(numObjects, allocator, allocStorage, pattern);
 	}
 }
 
@@ -84,10 +96,10 @@ struct CObjectAlloc
 
 template <class Allocator>
 float timePoolTests(unsigned int numObjects, Allocator& allocator, std::vector<void*>& allocStorage,
-					unsigned int numRuns, Timer& timer)
+					unsigned int numRuns, Timer& timer, const std::vector<AllocRec>& pattern)
 {
 	timer.start();
-	runPoolAllocationTestRuns(numObjects, allocator, allocStorage, numRuns);
+	runPoolAllocationTestRuns(numObjects, allocator, allocStorage, numRuns, pattern);
 	timer.stop();
 
 	return (float)timer.micros() / numRuns;
@@ -95,25 +107,69 @@ float timePoolTests(unsigned int numObjects, Allocator& allocator, std::vector<v
 
 template <class Allocator>
 void timeAndRecord(unsigned int numObjects, Allocator& allocator, std::vector<void*>& allocStorage,
-					unsigned int numRuns, Timer& timer, DataTable& table, unsigned int column, unsigned int row)
+					unsigned int numRuns, Timer& timer, DataTable& table, unsigned int column, unsigned int row,
+					const std::vector<AllocRec>& pattern)
 {
-	float time = timePoolTests(numObjects, allocator, allocStorage, numRuns, timer);
+	float time = timePoolTests(numObjects, allocator, allocStorage, numRuns, timer, pattern);
 	table.recordValue(column, row, time);
 }
 
 template <unsigned int objectSize>
-void recordRow(unsigned int numObjects, unsigned int numRuns, DataTable& table, unsigned int row)
+void recordRow(unsigned int numObjects, unsigned int numRuns, DataTable& table, unsigned int row, const std::vector<AllocRec>& pattern)
 {
 	GENA::PoolAllocator<objectSize> pool(numObjects);
 	CObjectAlloc<objectSize> cPool;
 
 	Timer t;
-	std::vector<void*> storage;
-	storage.reserve(numObjects);
+	std::vector<void*> storage(numObjects);
 	
 	table.recordValue(0, row, objectSize);
-	timeAndRecord(numObjects, pool, storage, numRuns, t, table, 1, row);
-	timeAndRecord(numObjects, cPool, storage, numRuns / 10, t, table, 2, row);
+	timeAndRecord(numObjects, pool, storage, numRuns, t, table, 1, row, pattern);
+	timeAndRecord(numObjects, cPool, storage, numRuns / 10, t, table, 2, row, pattern);
+}
+
+std::vector<AllocRec> generateRandomAllocPattern(unsigned int numAllocs)
+{
+	std::vector<AllocRec> res;
+	res.reserve(numAllocs * 2);
+	std::uniform_int_distribution<unsigned int> dist(0, std::numeric_limits<unsigned int>::max() / 2);
+	std::default_random_engine randEng(0);
+
+	for (unsigned int i = 0; i < numAllocs; ++i)
+	{
+		AllocRec aRec = {true, i, dist(randEng)};
+		res.push_back(aRec);
+		AllocRec dRec = {false, i, aRec.time + dist(randEng)};
+		res.push_back(dRec);
+	}
+
+	std::sort(res.begin(), res.end(), 
+		[] (const AllocRec& lhs, const AllocRec& rhs)
+		{
+			return lhs.time < rhs.time;
+		});
+
+	return res;
+}
+
+std::vector<AllocRec> generateLinearAllocPattern(unsigned int numAllocs)
+{
+	std::vector<AllocRec> res;
+	res.reserve(numAllocs * 2);
+
+	for (unsigned int i = 0; i < numAllocs; ++i)
+	{
+		AllocRec rec = {true, i, 0};
+		res.push_back(rec);
+	}
+
+	for (unsigned int i = 0; i < numAllocs; ++i)
+	{
+		AllocRec rec = {false, i, 0};
+		res.push_back(rec);
+	}
+
+	return res;
 }
 
 void testPoolAllocator()
@@ -130,20 +186,42 @@ void testPoolAllocator()
 
 	unsigned int row = 0;
 
-	recordRow<1>(numObjects, numRuns, table, row++);
-	recordRow<2>(numObjects, numRuns, table, row++);
-	recordRow<4>(numObjects, numRuns, table, row++);
-	recordRow<8>(numObjects, numRuns, table, row++);
-	recordRow<16>(numObjects, numRuns, table, row++);
-	recordRow<32>(numObjects, numRuns, table, row++);
-	recordRow<64>(numObjects, numRuns, table, row++);
-	recordRow<128>(numObjects, numRuns, table, row++);
-	recordRow<256>(numObjects, numRuns, table, row++);
-	recordRow<512>(numObjects, numRuns, table, row++);
-	recordRow<1024>(numObjects, numRuns, table, row++);
-	recordRow<2048>(numObjects, numRuns, table, row++);
+	std::vector<AllocRec> pattern = generateLinearAllocPattern(numObjects);
 
-	table.printCSV(std::ofstream("poolAllocator.csv"));
+	recordRow<1>(numObjects, numRuns, table, row++, pattern);
+	recordRow<2>(numObjects, numRuns, table, row++, pattern);
+	recordRow<4>(numObjects, numRuns, table, row++, pattern);
+	recordRow<8>(numObjects, numRuns, table, row++, pattern);
+	recordRow<16>(numObjects, numRuns, table, row++, pattern);
+	recordRow<32>(numObjects, numRuns, table, row++, pattern);
+	recordRow<64>(numObjects, numRuns, table, row++, pattern);
+	recordRow<128>(numObjects, numRuns, table, row++, pattern);
+	recordRow<256>(numObjects, numRuns, table, row++, pattern);
+	recordRow<512>(numObjects, numRuns, table, row++, pattern);
+	recordRow<1024>(numObjects, numRuns, table, row++, pattern);
+	recordRow<2048>(numObjects, numRuns, table, row++, pattern);
+
+	table.printCSV(std::ofstream("poolAllocatorLinear.csv"));
+
+	table = DataTable(headers);
+	row = 0;
+
+	pattern = generateRandomAllocPattern(numObjects);
+
+	recordRow<1>(numObjects, numRuns, table, row++, pattern);
+	recordRow<2>(numObjects, numRuns, table, row++, pattern);
+	recordRow<4>(numObjects, numRuns, table, row++, pattern);
+	recordRow<8>(numObjects, numRuns, table, row++, pattern);
+	recordRow<16>(numObjects, numRuns, table, row++, pattern);
+	recordRow<32>(numObjects, numRuns, table, row++, pattern);
+	recordRow<64>(numObjects, numRuns, table, row++, pattern);
+	recordRow<128>(numObjects, numRuns, table, row++, pattern);
+	recordRow<256>(numObjects, numRuns, table, row++, pattern);
+	recordRow<512>(numObjects, numRuns, table, row++, pattern);
+	recordRow<1024>(numObjects, numRuns, table, row++, pattern);
+	recordRow<2048>(numObjects, numRuns, table, row++, pattern);
+
+	table.printCSV(std::ofstream("poolAllocatorRandom.csv"));
 }
 
 int main(int argc, char* argv[])

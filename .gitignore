@@ -22,8 +22,10 @@
 
 # Visual studio
 [Dd]ebug*/
+[Rr]elease*/
 *.sdf
 *.opensdf
 *.suo
 
 *.*~
+*.csv
