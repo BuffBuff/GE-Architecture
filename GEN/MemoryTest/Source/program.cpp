@@ -13,7 +13,6 @@ struct AllocRec
 {
 	bool doAlloc;
 	unsigned int id;
-	unsigned int time;
 };
 
 void testStackAllocator()
@@ -132,26 +131,40 @@ std::vector<AllocRec> generateRandomAllocPattern(unsigned int numAllocs)
 {
 	std::cout << "Generating random alloc pattern\n";
 
-	std::vector<AllocRec> res;
+	std::vector<std::pair<unsigned int, AllocRec>> res;
 	res.reserve(numAllocs * 2);
 	std::uniform_int_distribution<unsigned int> dist(0, std::numeric_limits<unsigned int>::max() / 2);
-	std::default_random_engine randEng(0);
+	std::default_random_engine randEng(1);
 
 	for (unsigned int i = 0; i < numAllocs; ++i)
 	{
-		AllocRec aRec = {true, i, dist(randEng)};
+		std::pair<unsigned int, AllocRec> aRec;
+		aRec.first = dist(randEng);
+		aRec.second.doAlloc = true;
+		aRec.second.id = i;
 		res.push_back(aRec);
-		AllocRec dRec = {false, i, aRec.time + dist(randEng)};
+
+		std::pair<unsigned int, AllocRec> dRec;
+		dRec.first = aRec.first + dist(randEng);
+		dRec.second.doAlloc = false;
+		dRec.second.id = i;
 		res.push_back(dRec);
 	}
 
 	std::sort(res.begin(), res.end(), 
-		[] (const AllocRec& lhs, const AllocRec& rhs)
+		[] (const std::pair<unsigned int, AllocRec>& lhs, const std::pair<unsigned int, AllocRec>& rhs)
 		{
-			return lhs.time < rhs.time;
+			return lhs.first < rhs.first;
 		});
 
-	return res;
+	std::vector<AllocRec> recRes(res.size());
+	std::transform(res.begin(), res.end(), recRes.begin(),
+		[] (const std::pair<unsigned int, AllocRec>& in)
+		{
+			return in.second;
+		});
+
+	return recRes;
 }
 
 std::vector<AllocRec> generateLinearAllocPattern(unsigned int numAllocs)
@@ -163,13 +176,13 @@ std::vector<AllocRec> generateLinearAllocPattern(unsigned int numAllocs)
 
 	for (unsigned int i = 0; i < numAllocs; ++i)
 	{
-		AllocRec rec = {true, i, 0};
+		AllocRec rec = {true, i};
 		res.push_back(rec);
 	}
 
 	for (unsigned int i = 0; i < numAllocs; ++i)
 	{
-		AllocRec rec = {false, i, 0};
+		AllocRec rec = {false, i};
 		res.push_back(rec);
 	}
 
