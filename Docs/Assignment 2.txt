@@ -1,6 +1,6 @@
 General approach
 We will code a prototype resource manager, our resource manager from big-game course will serve as inspiration due
-to the similiarties of how the prototype resourse manager will function.
+to the similarities of how the prototype resource manager will function.
 
 This assignment will use the allocators from the previous assignment.
 
@@ -15,3 +15,7 @@ that the common resources isn't deallocated when loading the level and this is d
 content in the background.
 
 Another test scenario could be having random allocation and deallocating of resources.
+
+!!Gpu memory and ram!!
+
+Reports for each assignment in the group.

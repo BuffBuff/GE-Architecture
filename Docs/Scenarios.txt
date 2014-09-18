@@ -1,6 +1,6 @@
 Scenario 1: Allocate and release memory
 Description:
-Allocate a large amount of same sized data and then release it in a diffrent order created in.
+Allocate a large amount of same sized data and then release it in a different order created in.
 
 Test scenario:
 We will test the performance between the c++ malloc function against our alloc function and measure the time it takes to alloc the same amount of objets/data.
@@ -26,17 +26,17 @@ By get a new marker and compare it to the old one.
 - Allocator
 - Allocation pattern
 
-Stack allocator Scenario: without memory allinement
+Stack allocator Scenario: without memory alignment
 Description:
-Check the performance inpact when not using any form of memory size checks when allocate new data on the stack.
+Check the performance impact when not using any form of memory size checks when allocate new data on the stack.
 
 Test scenario:
 
 
 
-Stack allocator Scenario: with memory allinement
+Stack allocator Scenario: with memory alignment
 Description:
-Check the performance inpact when using any form of memory size checks when allocating new data on the stack.
+Check the performance impact when using any form of memory size checks when allocating new data on the stack.
 
 Test scenario:
 
