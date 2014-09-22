@@ -3,6 +3,8 @@
 + Klar
 - Skippad
 
+---- Assignment 1 ---
+
 + Planera
 * Prata skit
 + Skapa UML dokument, fixa DIA
@@ -11,7 +13,7 @@
 + Skapa UML för pool allokator
 + Definiera interface för Pool allokator
 + Definiera interface för Stack alloakator
-* Skriva program för prestandamätningar
++ Skriva program för prestandamätningar
 
 + Implementera Stack allokator
 
@@ -19,9 +21,25 @@
 
 + Lägg till stöd för multipla trådar
 
-Skapa skript för diagram från mätdata
++ Lägga till alignment i allokatorerna
+
+* Skapa skript för diagram från mätdata
 
 Testa med existerande projekt
 
 Slutföra UML
+Skriva rapport
+
+
+--- Assignment 2 ---
+
+* Läsa på om resurshantering
+Planera
+Prata skit
+Skriva scenarion
+Designa
+UML
+Implementera
+Testa?
+
 Skriva rapport
