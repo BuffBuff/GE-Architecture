@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "PoolAllocatorTest.h"
 #include "StackAllocatorTest.h"
 

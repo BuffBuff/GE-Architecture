@@ -11,6 +11,32 @@ namespace GENA
 	template <unsigned int chunkSize>
 	class PoolAllocator
 	{
+	private:
+
+		template <int size, int aligned_size = 1>
+		struct rec_find_size
+		{
+			static const int value = (size <= aligned_size) ? aligned_size : rec_find_size<size, aligned_size * 2>::value;
+		};
+
+		template <int size>
+		struct rec_find_size<size, sizeof(std::max_align_t)>
+		{
+			static const int value = sizeof(std::max_align_t);
+		};
+
+		template <int size>
+		struct find_align_type
+		{
+			typedef std::max_align_t align_type;
+		};
+		template <> struct find_align_type<1> {	typedef std::uint8_t align_type; };
+		template <> struct find_align_type<2> {	typedef std::uint16_t align_type; };
+		template <> struct find_align_type<4> {	typedef std::uint32_t align_type; };
+		template <> struct find_align_type<8> { typedef std::uint64_t align_type; };
+
+		typedef typename find_align_type<rec_find_size<chunkSize>::value>::align_type align_type_t;
+
 	public:
 		/**
 		 * Constructs a pool allocator with a fixed pool size.
@@ -70,6 +96,7 @@ namespace GENA
 			{
 				Chunk* next;
 				char data[chunkSize];
+				align_type_t forceAlignment;
 			};
 		};
 
