@@ -28,7 +28,7 @@ namespace GENA
 		 * Allocates a new block of the given size from stack
 		 * top.
 		 */
-		void* alloc(uint32_t sizeBytes);
+		void* alloc(uint32_t sizeBytes, uint32_t alignment = sizeof(std::max_align_t));
 
 		/**
 		 * Returns a marker to the current top.
@@ -56,18 +56,32 @@ namespace GENA
 		buffer.reserve(stackSizeBytes);
 	}
 
-	inline void* StackAllocator::alloc(uint32_t sizeBytes)
+	inline size_t alignOffset(size_t alignment, void* ptr)
+	{
+		size_t offset = (uintptr_t)ptr & (alignment - 1);
+		if (offset != 0)
+		{
+			offset = alignment - offset;
+		}
+
+		return offset;
+	}
+
+	inline void* StackAllocator::alloc(uint32_t sizeBytes, uint32_t alignment)
 	{
 		std::lock_guard<SpinLock> lock(spin);
 
-		if (sizeBytes > buffer.capacity() - buffer.size())
+		void* currPos = buffer.data() + buffer.size();
+		size_t offset = alignOffset(alignment, currPos);
+
+		if (buffer.capacity() - buffer.size() - offset < sizeBytes)
 		{
 			throw std::exception("No more stack memory for you!");
 		}
-		auto prevEnd = buffer.end();
-		buffer.resize(buffer.size() + sizeBytes);
 
-		return &(*prevEnd);
+		buffer.resize(buffer.size() + sizeBytes + offset);
+
+		return (char*)currPos + offset;
 	}
 
 	inline StackAllocator::Marker StackAllocator::getMarker()

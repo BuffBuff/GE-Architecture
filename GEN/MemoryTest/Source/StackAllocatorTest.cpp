@@ -21,7 +21,7 @@ struct CStackAllocator
 
 	std::vector<void*> allocations;
 
-	void* alloc(uint32_t sizeBytes)
+	void* alloc(uint32_t sizeBytes, uint32_t unused)
 	{
 		allocations.push_back(malloc(sizeBytes));
 		return allocations.back();
@@ -53,7 +53,7 @@ void runStackAllocationTestRun(Allocator& allocator, const std::vector<StackAllo
 	Allocator::Marker marker = allocator.getMarker();
 	for (unsigned int i = 0; i < numObjects; ++i)
 	{
-		allocator.alloc(pattern[i].size);
+		allocator.alloc(pattern[i].size, 1);
 	}
 	allocator.freeToMarker(marker);
 }
