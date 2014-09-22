@@ -34,7 +34,7 @@ struct CStackAllocator
 
 	void freeToMarker(Marker marker)
 	{
-		while (marker > allocations.size())
+		while (marker < allocations.size())
 		{
 			free(allocations.back());
 			allocations.pop_back();
