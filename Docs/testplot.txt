@@ -19,7 +19,7 @@ set yrange[0:]
 set output "graph.pdf" 
 set terminal pdf enh size 10, 10 font 'Verdana, 14'
 #set terminal window
-set multiplot layout 3, 1
+set multiplot layout 4, 1
  	
 set style fill transparent solid 0.5 noborder
 set key below right vertical
@@ -41,6 +41,12 @@ plot "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:3 title 'Malloc' w lin
 "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
 "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:2 title 'Pool Allocator' w lines lw 3 lc rgb "#ff0000",\
 "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
+
+set title "Stack Allocator Random"
+plot "../GEN/MemoryTest/stackAllocatorRand.csv" using 1:3 title 'Malloc' w lines lw 3 lc rgb "#008800",\
+"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
+"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:2 title 'Pool Allocator' w lines lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
 
 unset multiplot
 
