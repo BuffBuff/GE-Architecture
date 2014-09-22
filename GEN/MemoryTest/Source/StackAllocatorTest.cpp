@@ -140,12 +140,6 @@ std::vector<StackAllocRec> generateSameSizePattern(unsigned int numObjects, unsi
 	return res;
 };
 
-template <class A, unsigned int N>
-unsigned int arrSize(const A (&a)[N])
-{
-	return N;
-}
-
 std::vector<StackAllocRec> generateRandomSizePattern(unsigned int numObjects)
 {
 	std::cout << "Generating random pattern\n";
@@ -165,7 +159,7 @@ std::vector<StackAllocRec> generateRandomSizePattern(unsigned int numObjects)
 		200, 200, 120, 120, 60, 30, 20, 10, 7, 5, 10, 10,  10, 10
 	};
 
-	unsigned int nw = arrSize(sizeWeight);
+	unsigned int nw = std::extent<decltype(sizeWeight)>::value;
 
 	std::discrete_distribution<unsigned int> dist(nw, 0, 1,
 		[&sizeWeight, &nw] (double val)
