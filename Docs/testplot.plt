@@ -16,38 +16,42 @@ set border 2
 set yrange[0:]
 #set xrange[:2048]
 
-set output "graph.pdf" 
-set terminal pdf enh size 10, 10 font 'Verdana, 14'
+set terminal pdfcairo enh size 10, 10 font 'Verdana, 14'
 #set terminal window
-set multiplot layout 4, 1
  	
-set style fill transparent solid 0.5 noborder
+set style fill transparent solid 0.2 noborder
 set key below right vertical
 
+set output "poolLinear.pdf" 
 set title "Pool Allocator Linear"
-plot "../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:3 title 'Malloc' w lines lw 3 lc rgb "#008800",\
+plot "../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:3 title 'Malloc' w lines lw 10 lc rgb "#008800",\
 "../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
-"../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:2 title 'Pool Allocator' w lines lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:2 title 'Pool Allocator' w lines lw 10 lc rgb "#ff0000",\
 "../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
 
+set output "poolRandom.pdf"
 set title "Pool Allocator Random"
-plot "../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:3 title 'Malloc' w lines lw 3 lc rgb "#008800",\
+plot "../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:3 title 'Malloc' w lines lw 10 lc rgb "#008800",\
 "../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
-"../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:2 title 'Pool Allocator' w lines lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:2 title 'Pool Allocator' w lines lw 10 lc rgb "#ff0000",\
 "../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
 
+set output "stackSimple.pdf"
+set xlabel "Number of objects"
 set title "Stack Allocator Simple"
-plot "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:3 title 'Malloc' w lines lw 3 lc rgb "#008800",\
+plot "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:3 title 'Malloc' w lines lw 10 lc rgb "#008800",\
 "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
-"../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:2 title 'Pool Allocator' w lines lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:2 title 'Stack Allocator' w lines lw 10 lc rgb "#ff0000",\
 "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
 
+set output "stackRandom.pdf"
 set title "Stack Allocator Random"
-plot "../GEN/MemoryTest/stackAllocatorRand.csv" using 1:3 title 'Malloc' w lines lw 3 lc rgb "#008800",\
+plot "../GEN/MemoryTest/stackAllocatorRand.csv" using 1:3 title 'Malloc' w lines lw 10 lc rgb "#008800",\
 "../GEN/MemoryTest/stackAllocatorRand.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
-"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:2 title 'Pool Allocator' w lines lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:2 title 'Stack Allocator' w lines lw 10 lc rgb "#ff0000",\
 "../GEN/MemoryTest/stackAllocatorRand.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
 
-unset multiplot
+unset output
+unset terminal
 
 reset
