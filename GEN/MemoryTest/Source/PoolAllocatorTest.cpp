@@ -96,6 +96,45 @@ void recordRow(unsigned int numObjects, float testTimeSec, DataTable& table, uns
 	timeAndRecord(numObjects, poolST, storage, testTimeSec, t, table, 3, row, pattern);
 }
 
+template <bool cond, typename trueResult, typename falseResult>
+class if_;
+
+template <typename trueResult, typename falseResult>
+struct if_<true, trueResult, falseResult>
+{
+	typedef trueResult result;
+};
+
+template <typename trueResult, typename falseResult>
+struct if_<false, trueResult, falseResult>
+{
+	typedef falseResult result;
+};
+
+struct cont
+{
+	template <int objectSize, int maxSize, int inc>
+	static void run(unsigned int numObjects, float testTimeSec, DataTable& table, unsigned int row, const std::vector<AllocRec>& pattern)
+	{
+		rowRec<objectSize, maxSize, inc>(numObjects, testTimeSec, table, row, pattern);
+	}
+};
+
+struct stop
+{
+	template <int objectSize, int maxSize, int inc>
+	static void run(unsigned int numObjects, float testTimeSec, DataTable& table, unsigned int row, const std::vector<AllocRec>& pattern)
+	{
+	}
+};
+
+template <int size, int maxSize, int inc>
+void rowRec(unsigned int numObjects, float testTimeSec, DataTable& table, unsigned int row, const std::vector<AllocRec>& pattern)
+{
+	recordRow<size>(numObjects, testTimeSec, table, row, pattern);
+	typename if_<size + inc <= maxSize, cont, stop>::result::run<size + inc, maxSize, inc>(numObjects, testTimeSec, table, row + 1, pattern);
+}
+
 std::vector<AllocRec> generateRandomAllocPattern(unsigned int numAllocs)
 {
 	std::cout << "Generating random alloc pattern\n";
@@ -170,7 +209,7 @@ void runTestSet(const std::vector<AllocRec>& pattern, const std::string& filenam
 
 	DataTable table(headers);
 
-	const float runTimePerTestSec = 0.5f;
+	const float runTimePerTestSec = 2.0f;
 	const unsigned int numObjects = 1024;
 
 	unsigned int row = 0;
@@ -179,17 +218,10 @@ void runTestSet(const std::vector<AllocRec>& pattern, const std::string& filenam
 	recordRow<2>(numObjects, runTimePerTestSec, table, row++, pattern);
 	recordRow<4>(numObjects, runTimePerTestSec, table, row++, pattern);
 	recordRow<8>(numObjects, runTimePerTestSec, table, row++, pattern);
-	recordRow<16>(numObjects, runTimePerTestSec, table, row++, pattern);
-	recordRow<32>(numObjects, runTimePerTestSec, table, row++, pattern);
-	recordRow<64>(numObjects, runTimePerTestSec, table, row++, pattern);
-	recordRow<128>(numObjects, runTimePerTestSec, table, row++, pattern);
-	recordRow<256>(numObjects, runTimePerTestSec, table, row++, pattern);
-	recordRow<512>(numObjects, runTimePerTestSec, table, row++, pattern);
-	recordRow<1024>(numObjects, runTimePerTestSec, table, row++, pattern);
-	recordRow<2048>(numObjects, runTimePerTestSec, table, row++, pattern);
+
+	rowRec<16, 1024, 16>(numObjects, runTimePerTestSec, table, row, pattern);
 
 	table.printCSV(std::ofstream(filename));
-
 }
 
 void testPoolAllocator()

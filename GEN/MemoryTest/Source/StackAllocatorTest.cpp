@@ -101,7 +101,7 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 
 	DataTable table(headers);
 
-	const float runTimePerTestSec = 0.5f;
+	const float runTimePerTestSec = 2.0f;
 	const unsigned int maxNumObjects = pattern.size();
 
 	GENA::StackAllocator stackAllocator(stackSize);
@@ -111,8 +111,23 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 
 	Timer t;
 
-	unsigned int numObjects = 128;
 	unsigned int row = 0;
+	unsigned int numSamples = 64;
+	unsigned int inc = maxNumObjects / numSamples;
+	unsigned int numObjects = 8;
+	
+	if (inc > 8)
+	{
+		std::cout << "Objects: " << numObjects << std::endl;
+		table.recordValue(0, row, numObjects);
+		timeAndRecord(stackAllocator, runTimePerTestSec, t, table, 1, row, pattern, numObjects);
+		timeAndRecord(cStack, runTimePerTestSec, t, table, 2, row, pattern, numObjects);
+		timeAndRecord(stackAllocatorSingleThreaded, runTimePerTestSec, t, table, 3, row, pattern, numObjects);
+		++row;
+	}
+
+	numObjects = inc;
+
 	while (numObjects <= maxNumObjects)
 	{
 		std::cout << "Objects: " << numObjects << std::endl;
@@ -121,7 +136,7 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 		timeAndRecord(cStack, runTimePerTestSec, t, table, 2, row, pattern, numObjects);
 		timeAndRecord(stackAllocatorSingleThreaded, runTimePerTestSec, t, table, 3, row, pattern, numObjects);
 		++row;
-		numObjects *= 2;
+		numObjects += inc;
 	}
 
 	table.printCSV(std::ofstream(filename));
