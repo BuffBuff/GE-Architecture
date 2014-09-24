@@ -41,7 +41,7 @@ namespace GENA
 		/**
 		 * Constructs a pool allocator with a fixed pool size.
 		 */
-		PoolAllocator(uint32_t nrOfChunks)
+		explicit PoolAllocator(uint32_t nrOfChunks)
 		{
 			freeList = nullptr;
 
