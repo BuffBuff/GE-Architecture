@@ -1,0 +1,52 @@
+ASS 2 design
+
+-- Asset identifiers --
+
+File path?
++ More natural
++ Easier debugging
+- Slower
+- More difficult to detect duplicates
+
+Integer?
++ Easy to handle
++ Fast
++/- Hides filename
+
+Hash?
++ Fast
++/- Hides filename
++ Automatic detection of duplicates
++/- Version handling
+
+-- Handling different resource types --
+
+Interface for registering resource loaders with a resource type.
+Resource index contains resource type.
+Attempt to load a resource type without a registered resource raises an error.
+
+
+-- Loading a resource --
+
+Provide the resource manager with an asset identifier and an action to perform when done.
+Callback for reporting progress per file?
+Prevent unloading of soon to be used assets, by marking resources as to be loaded.
+
+
+-- Unloading resources --
+
+Resources are cached until the space is needed.
+
+
+
+
+be able to read a file containing multiple references to other objects
+
+use a singel thread to load from disk and thread-pool to prepare the data for the system
+
+
+
+scenario 1
+5 rooms in a row having the room we are in and the adjecent rooms also loaded
+
+
