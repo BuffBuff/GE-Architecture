@@ -8,6 +8,7 @@
 
 #include "DataTable.h"
 #include "StackAllocator.h"
+#include "StackAllocatorSingleThreaded.h"
 #include "Timer.h"
 
 struct StackAllocRec
@@ -96,6 +97,7 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 	headers.push_back("NumObjects");
 	headers.push_back("StackAllocator");
 	headers.push_back("CStackAllocator");
+	headers.push_back("StackAllocatorSingleThreaded");
 
 	DataTable table(headers);
 
@@ -103,6 +105,7 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 	const unsigned int maxNumObjects = pattern.size();
 
 	GENA::StackAllocator stackAllocator(stackSize);
+	GENA::StackAllocatorSingleThreaded stackAllocatorSingleThreaded(stackSize);
 	CStackAllocator cStack;
 	cStack.allocations.reserve(maxNumObjects);
 
@@ -116,6 +119,7 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 		table.recordValue(0, row, numObjects);
 		timeAndRecord(stackAllocator, runTimePerTestSec, t, table, 1, row, pattern, numObjects);
 		timeAndRecord(cStack, runTimePerTestSec, t, table, 2, row, pattern, numObjects);
+		timeAndRecord(stackAllocatorSingleThreaded, runTimePerTestSec, t, table, 3, row, pattern, numObjects);
 		++row;
 		numObjects *= 2;
 	}

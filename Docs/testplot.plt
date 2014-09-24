@@ -27,14 +27,18 @@ set title "Pool Allocator Linear"
 plot "../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:3 title 'Malloc' w lines lw 10 lc rgb "#008800",\
 "../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
 "../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:2 title 'Pool Allocator' w lines lw 10 lc rgb "#ff0000",\
-"../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
+"../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:4 title 'Pool Allocator Single Thread' w lines lw 10 lc rgb "#0000ff",\
+"../GEN/MemoryTest/poolAllocatorLinear.csv" using 1:4 notitle w filledcurves y1=0 lw 3 lc rgb "#0000ff"
 
 set output "poolRandom.pdf"
 set title "Pool Allocator Random"
 plot "../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:3 title 'Malloc' w lines lw 10 lc rgb "#008800",\
 "../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
 "../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:2 title 'Pool Allocator' w lines lw 10 lc rgb "#ff0000",\
-"../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
+"../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:4 title 'Pool Allocator Single Thread' w lines lw 10 lc rgb "#0000ff",\
+"../GEN/MemoryTest/poolAllocatorRandom.csv" using 1:4 notitle w filledcurves y1=0 lw 3 lc rgb "#0000ff"
 
 set output "stackSimple.pdf"
 set xlabel "Number of objects"
@@ -42,14 +46,18 @@ set title "Stack Allocator Simple"
 plot "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:3 title 'Malloc' w lines lw 10 lc rgb "#008800",\
 "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
 "../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:2 title 'Stack Allocator' w lines lw 10 lc rgb "#ff0000",\
-"../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
+"../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:4 title 'Stack Allocator Single Thread' w lines lw 10 lc rgb "#0000ff",\
+"../GEN/MemoryTest/stackAllocatorSimple.csv" using 1:4 notitle w filledcurves y1=0 lw 3 lc rgb "#0000ff"
 
 set output "stackRandom.pdf"
 set title "Stack Allocator Random"
 plot "../GEN/MemoryTest/stackAllocatorRand.csv" using 1:3 title 'Malloc' w lines lw 10 lc rgb "#008800",\
 "../GEN/MemoryTest/stackAllocatorRand.csv" using 1:3 notitle w filledcurves y1=0 lw 3 lc rgb "#008800",\
 "../GEN/MemoryTest/stackAllocatorRand.csv" using 1:2 title 'Stack Allocator' w lines lw 10 lc rgb "#ff0000",\
-"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000"
+"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:2 notitle w filledcurves y1=0 lw 3 lc rgb "#ff0000",\
+"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:4 title 'Stack Allocator Single Thread' w lines lw 10 lc rgb "#0000ff",\
+"../GEN/MemoryTest/stackAllocatorRand.csv" using 1:4 notitle w filledcurves y1=0 lw 3 lc rgb "#0000ff"
 
 unset output
 unset terminal

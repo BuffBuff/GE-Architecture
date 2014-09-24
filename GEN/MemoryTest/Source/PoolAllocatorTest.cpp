@@ -6,6 +6,7 @@
 #include <random>
 
 #include "PoolAllocator.h"
+#include "PoolAllocatorSingleThreaded.h"
 
 #include "DataTable.h"
 #include "Timer.h"
@@ -83,6 +84,7 @@ void recordRow(unsigned int numObjects, float testTimeSec, DataTable& table, uns
 	std::cout << "Object size: " << objectSize << std::endl;
 
 	GENA::PoolAllocator<objectSize> pool(numObjects);
+	GENA::PoolAllocatorSingleThreaded<objectSize> poolST(numObjects);
 	CObjectAlloc<objectSize> cPool;
 
 	Timer t;
@@ -91,6 +93,7 @@ void recordRow(unsigned int numObjects, float testTimeSec, DataTable& table, uns
 	table.recordValue(0, row, objectSize);
 	timeAndRecord(numObjects, pool, storage, testTimeSec, t, table, 1, row, pattern);
 	timeAndRecord(numObjects, cPool, storage, testTimeSec, t, table, 2, row, pattern);
+	timeAndRecord(numObjects, poolST, storage, testTimeSec, t, table, 3, row, pattern);
 }
 
 std::vector<AllocRec> generateRandomAllocPattern(unsigned int numAllocs)
@@ -163,6 +166,7 @@ void runTestSet(const std::vector<AllocRec>& pattern, const std::string& filenam
 	headers.push_back("ObjectSize");
 	headers.push_back("PoolAllocator");
 	headers.push_back("CObjectAlloc");
+	headers.push_back("PoolAllocatorSingleThreaded");
 
 	DataTable table(headers);
 
