@@ -80,6 +80,8 @@ void timeAndRecord(unsigned int numObjects, Allocator& allocator, std::vector<vo
 template <unsigned int objectSize>
 void recordRow(unsigned int numObjects, float testTimeSec, DataTable& table, unsigned int row, const std::vector<AllocRec>& pattern)
 {
+	std::cout << "Object size: " << objectSize << std::endl;
+
 	GENA::PoolAllocator<objectSize> pool(numObjects);
 	CObjectAlloc<objectSize> cPool;
 
@@ -155,7 +157,7 @@ std::vector<AllocRec> generateLinearAllocPattern(unsigned int numAllocs)
 
 void runTestSet(const std::vector<AllocRec>& pattern, const std::string& filename)
 {
-	std::cout << "Running test set...";
+	std::cout << "Running pool allocator test set\n";
 
 	std::vector<std::string> headers;
 	headers.push_back("ObjectSize");
@@ -184,7 +186,6 @@ void runTestSet(const std::vector<AllocRec>& pattern, const std::string& filenam
 
 	table.printCSV(std::ofstream(filename));
 
-	std::cout << "done.\n";
 }
 
 void testPoolAllocator()

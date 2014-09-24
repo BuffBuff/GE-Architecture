@@ -90,7 +90,7 @@ void timeAndRecord(Allocator& allocator, float testTimeSec, Timer& timer, DataTa
 
 void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSize, const std::string& filename)
 {
-	std::cout << "Running test set...";
+	std::cout << "Running stack allocator test set\n";
 
 	std::vector<std::string> headers;
 	headers.push_back("NumObjects");
@@ -112,6 +112,7 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 	unsigned int row = 0;
 	while (numObjects <= maxNumObjects)
 	{
+		std::cout << "Objects: " << numObjects << std::endl;
 		table.recordValue(0, row, numObjects);
 		timeAndRecord(stackAllocator, runTimePerTestSec, t, table, 1, row, pattern, numObjects);
 		timeAndRecord(cStack, runTimePerTestSec, t, table, 2, row, pattern, numObjects);
@@ -120,8 +121,6 @@ void runTestSet(const std::vector<StackAllocRec>& pattern, unsigned int stackSiz
 	}
 
 	table.printCSV(std::ofstream(filename));
-
-	std::cout << "done.\n";
 }
 
 std::vector<StackAllocRec> generateSameSizePattern(unsigned int numObjects, unsigned int objectSize)
