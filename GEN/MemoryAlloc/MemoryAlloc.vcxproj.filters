@@ -20,6 +20,12 @@
     <ClInclude Include="include\PoolAllocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\PoolAllocatorSingleThreaded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\StackAllocatorSingleThreaded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
