@@ -26,8 +26,11 @@
 *.sdf
 *.opensdf
 *.suo
+*.user
 
 *.*~
 *.csv
 *.pdf
 *.png
+*.txt
+*.bin
