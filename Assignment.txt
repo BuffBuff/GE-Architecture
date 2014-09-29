@@ -22,7 +22,7 @@ Hash?
 -- Handling different resource types --
 
 Interface for registering resource loaders with a resource type.
-Resource index contains resource type.
+Resource index contains resource type. (8 ASCII characters)
 Attempt to load a resource type without a registered resource raises an error.
 
 
@@ -39,6 +39,18 @@ Resources are cached until the space is needed.
 
 
 
+
+-- specialized file format instead of zip? --
+
++ faster to read
++ flexible
++ no need for 3-party programs to make the resorce file
+- development time
+- harder to resue in other programs
+CONCLUSION
+no.
+We will use zip file with complimenting index file,
+but start with a non-compressed format.
 
 be able to read a file containing multiple references to other objects
 
