@@ -8,16 +8,23 @@ namespace GENA
 	{
 		entries[resId].filename = filename;
 		entries[resId].resType = resType;
+		resourceIds.push_back(resId);
 	}
 
 	void BinPacked::Index::addEntry(ResId resId, const Entry& entry)
 	{
 		entries[resId] = entry;
+		resourceIds.push_back(resId);
 	}
 
 	const BinPacked::Entry& BinPacked::Index::getEntry(ResId id) const
 	{
 		return entries.at(id);
+	}
+
+	BinPacked::ResId BinPacked::Index::getResAt(uint32_t num) const
+	{
+		return resourceIds[num];
 	}
 
 	const std::map<BinPacked::ResId, BinPacked::Entry>& BinPacked::Index::getEntries() const
@@ -73,16 +80,6 @@ namespace GENA
 		readIndex();
 	}
 
-	std::vector<char> BinPacked::extractFile(ResId id) const
-	{
-		const Entry& entry = index.getEntry(id);
-
-		archive->seekg(entry.filepos);
-		std::vector<char> buffer((uint32_t)entry.fileSize);
-		archive->read(buffer.data(), buffer.size());
-		return buffer;
-	}
-
 	void BinPacked::prepareFileInfo()
 	{
 		index.prepareFileInfo();
@@ -108,6 +105,39 @@ namespace GENA
 	void BinPacked::addFile(ResId id, const std::string& filename, const std::string resType)
 	{
 		index.addEntry(id, filename, resType);
+	}
+
+	uint64_t BinPacked::getFileSize(ResId id) const
+	{
+		return index.getEntry(id).fileSize;
+	}
+
+	void BinPacked::extractFile(ResId id, char* buffer) const
+	{
+		const Entry& entry = index.getEntry(id);
+
+		archive->seekg(entry.filepos);
+		archive->read(buffer, entry.fileSize);
+	}
+
+	uint32_t BinPacked::getNumFiles() const
+	{
+		return index.getEntries().size();
+	}
+
+	BinPacked::ResId BinPacked::getFileId(uint32_t num) const
+	{
+		return index.getResAt(num);
+	}
+
+	std::string BinPacked::getFileName(ResId res) const
+	{
+		return index.getEntry(res).filename;
+	}
+
+	std::string BinPacked::getFileType(ResId res) const
+	{
+		return index.getEntry(res).resType;
 	}
 
 	void BinPacked::writeFile(std::ostream& out, const Entry& fileEntry)

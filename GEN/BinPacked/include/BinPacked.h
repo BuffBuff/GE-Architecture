@@ -26,12 +26,14 @@ namespace GENA
 		class Index
 		{
 		private:
+			std::vector<ResId> resourceIds;
 			std::map<ResId, Entry> entries;
 
 		public:
 			void addEntry(ResId resId, const std::string& filename, const std::string resType);
 			void addEntry(ResId resId, const Entry& entry);
 			const Entry& getEntry(ResId id) const;
+			ResId getResAt(uint32_t num) const;
 			const std::map<ResId, Entry>& getEntries() const;
 
 			void prepareFileInfo();
@@ -46,12 +48,17 @@ namespace GENA
 
 	public:
 		void bindArchive(std::unique_ptr<std::istream> archive);
-		std::vector<char> extractFile(ResId id) const;
 
 		void prepareFileInfo();
 		void write(std::ostream& out) const;
 
 		void addFile(ResId id, const std::string& filename, const std::string resType);
+		uint64_t getFileSize(ResId id) const;
+		void extractFile(ResId id, char* buffer) const;
+		uint32_t getNumFiles() const;
+		ResId getFileId(uint32_t num) const;
+		std::string getFileName(ResId res) const;
+		std::string getFileType(ResId res) const;
 
 	private:
 		static void writeFile(std::ostream& out, const Entry& fileEntry);

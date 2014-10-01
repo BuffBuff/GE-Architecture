@@ -115,12 +115,22 @@ void extractFile(const char* filename)
 	GENA::BinPacked pack;
 
 	pack.bindArchive(std::unique_ptr<std::istream>(new std::ifstream(filename, std::ifstream::binary)));
-	std::vector<char> data = pack.extractFile(176250646);
-	std::string text(data.data(), data.size());
-	std::cout << text << std::endl;
 
-	data = pack.extractFile(437672487);
-	std::ofstream("extractedFile.png").write(data.data(), data.size());
+	std::vector<char> data;
+
+	unsigned int numFiles = pack.getNumFiles();
+	for (unsigned int i = 0; i < numFiles; ++i)
+	{
+		GENA::BinPacked::ResId id = pack.getFileId(i);
+		if (pack.getFileName(id) == filename)
+		{
+			data.resize((size_t)pack.getFileSize(id));
+			pack.extractFile(id, data.data());
+			break;
+		}
+	}
+
+	std::ofstream("extractedFile").write(data.data(), data.size());
 }
 
 int main(int argc, char * argv[])

@@ -11,22 +11,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\BinPacked.h" />
-    <ClInclude Include="include\ResourceBinFile.h" />
+    <ClInclude Include="include\IResourceFile.h" />
+    <ClInclude Include="include\IResourceLoader.h" />
+    <ClInclude Include="include\ResourceCache.h" />
+    <ClInclude Include="include\ResourceHandle.h" />
+    <ClInclude Include="Source\DefaultResourceLoader.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\BinPacked.cpp" />
-    <ClCompile Include="source\ResourceBinFile.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ResourceCache\ResourceCache.vcxproj">
-      <Project>{ec2a399d-a130-4647-bae6-0a9ba3679176}</Project>
-    </ProjectReference>
+    <ClCompile Include="source\ResourceCache.cpp" />
+    <ClCompile Include="Source\ResourceHandle.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{35E64473-E5A6-4BD1-A423-790DEE1A99AF}</ProjectGuid>
+    <ProjectGuid>{EC2A399D-A130-4647-BAE6-0A9BA3679176}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>BinPacked</RootNamespace>
+    <RootNamespace>ResourceCache</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -53,10 +51,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)ResourceCache\include;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Util\include;$(ProjectDir)include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)ResourceCache\include;$(ProjectDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Util\include;$(ProjectDir)include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

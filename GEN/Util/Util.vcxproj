@@ -11,22 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\BinPacked.h" />
-    <ClInclude Include="include\ResourceBinFile.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\BinPacked.cpp" />
-    <ClCompile Include="source\ResourceBinFile.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ResourceCache\ResourceCache.vcxproj">
-      <Project>{ec2a399d-a130-4647-bae6-0a9ba3679176}</Project>
-    </ProjectReference>
+    <ClInclude Include="include\Buffer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{35E64473-E5A6-4BD1-A423-790DEE1A99AF}</ProjectGuid>
+    <ProjectGuid>{415B58C2-9947-41B0-810D-0D6FF26B818D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>BinPacked</RootNamespace>
+    <RootNamespace>Util</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -52,12 +42,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)ResourceCache\include;$(ProjectDir)include;$(IncludePath)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)ResourceCache\include;$(ProjectDir)include;$(IncludePath)</IncludePath>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>
