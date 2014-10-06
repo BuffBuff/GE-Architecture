@@ -39,7 +39,16 @@ Prata skit
 Skriva scenarion
 Designa
 UML
-Implementera
-Testa?
+
++ Implementera basic cache
+Trådsäker implementation
+Komprimeringsstöd
+Dumpa lista om för mycket minnne använt
+Stöd för resurs-sets
+
+Välja grundprojekt
+Integrera resurshanteraren
+Implementera scenario
+Mäta prestanda
 
 Skriva rapport

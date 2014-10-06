@@ -51,5 +51,7 @@ namespace GENA
 		std::shared_ptr<ResourceHandle> getHandle(ResId res);
 		int preload(const std::string pattern, void (*progressCallback)(int, bool&));
 		void flush();
+
+		ResId findByPath(const std::string path) const;
 	};
 }

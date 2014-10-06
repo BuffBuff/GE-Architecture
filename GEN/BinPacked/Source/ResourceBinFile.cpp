@@ -11,7 +11,7 @@ namespace GENA
 
 	void ResourceBinFile::open()
 	{
-		pack.bindArchive(std::unique_ptr<std::istream>(new std::ifstream(filepath)));
+		pack.bindArchive(std::unique_ptr<std::istream>(new std::ifstream(filepath, std::ifstream::binary)));
 	}
 
 	uint64_t ResourceBinFile::getRawResourceSize(ResId res)

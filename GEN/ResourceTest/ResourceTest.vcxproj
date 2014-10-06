@@ -41,11 +41,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)BinPacked\include;$(SolutionDir)Util\include;$(SolutionDir)ResourceCache\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(HAV_COMMON_INC);$(HAV_GRAPHICS_INC);$(SolutionDir)BinPacked\include;$(SolutionDir)Util\include;$(SolutionDir)ResourceCache\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(HAV_COMMON_LIBD);$(HAV_GRAPHICS_LIBD);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)BinPacked\include;$(SolutionDir)Util\include;$(SolutionDir)ResourceCache\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(HAV_COMMON_INC);$(HAV_GRAPHICS_INC);$(SolutionDir)BinPacked\include;$(SolutionDir)Util\include;$(SolutionDir)ResourceCache\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(HAV_COMMON_LIB);$(HAV_GRAPHICS_LIB);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -54,6 +56,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -69,6 +72,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -79,6 +83,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\program.cpp" />
+    <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BinPacked\BinPacked.vcxproj">
@@ -87,6 +92,10 @@
     <ProjectReference Include="..\ResourceCache\ResourceCache.vcxproj">
       <Project>{ec2a399d-a130-4647-bae6-0a9ba3679176}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\ClientExceptions.h" />
+    <ClInclude Include="Source\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

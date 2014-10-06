@@ -37,6 +37,11 @@ namespace GENA
 			}
 		}
 
+		if (!loader && !resourceLoaders.empty())
+		{
+			loader = resourceLoaders.back();
+		}
+
 		if (!loader)
 		{
 			throw std::runtime_error("Default resource loader not found!");
@@ -181,5 +186,20 @@ namespace GENA
 		}
 
 		return handle;
+	}
+
+	ResourceCache::ResId ResourceCache::findByPath(const std::string path) const
+	{
+		const uint32_t numRes = file->getNumResources();
+		for (uint32_t i = 0; i < numRes; ++i)
+		{
+			ResId resId = file->getResourceId(i);
+			if (file->getResourceName(resId) == path)
+			{
+				return resId;
+			}
+		}
+
+		throw std::runtime_error(path + " could not be mapped to a resource");
 	}
 }
