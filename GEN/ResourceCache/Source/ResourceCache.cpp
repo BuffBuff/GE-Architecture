@@ -181,9 +181,9 @@ namespace GENA
 
 	ResourceCache::~ResourceCache()
 	{
-		for (std::thread& t : workers)
+		for (auto& t : workers)
 		{
-			t.join();
+			t.second.join();
 		}
 		workers.clear();
 
@@ -206,10 +206,21 @@ namespace GENA
 
 	std::shared_ptr<ResourceHandle> ResourceCache::getHandle(ResId res)
 	{
+		std::unique_lock<std::mutex> lock(workerLock);
+
 		std::shared_ptr<ResourceHandle> handle(find(res));
 		if (!handle)
 		{
-			handle = load(res);
+			if (workers.count(res) == 0)
+			{
+				handle = load(res);
+			}
+			else
+			{
+				workers[res].join();
+				workers.erase(res);
+				handle = find(res);
+			}
 		}
 		else
 		{
@@ -221,6 +232,8 @@ namespace GENA
 
 	void ResourceCache::preload(ResId res, void (*completionCallback)(std::shared_ptr<ResourceHandle>, void*), void* userData)
 	{
+		std::unique_lock<std::mutex> lock(workerLock);
+
 		std::shared_ptr<ResourceHandle> handle(find(res));
 		if (handle)
 		{
@@ -228,8 +241,11 @@ namespace GENA
 		}
 		else
 		{
-			std::thread newWorker(&ResourceCache::asyncLoad, this, res, completionCallback, userData);
-			workers.push_back(std::move(newWorker));
+			if (workers.count(res) == 0)
+			{
+				std::thread newWorker(&ResourceCache::asyncLoad, this, res, completionCallback, userData);
+				workers.emplace(res, std::move(newWorker));
+			}
 		}
 	}
 

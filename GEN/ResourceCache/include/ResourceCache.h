@@ -37,7 +37,8 @@ namespace GENA
 		uint64_t cacheSize;
 		std::atomic_uint64_t allocated;
 
-		std::vector<std::thread> workers;
+		std::map<ResId, std::thread> workers;
+		std::mutex workerLock;
 
 		std::shared_ptr<ResourceHandle> find(ResId res);
 		void update(std::shared_ptr<ResourceHandle> handle);
