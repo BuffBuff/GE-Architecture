@@ -6,6 +6,7 @@
 #pragma comment(lib, "Graphics.lib")
 #endif
 
+#include "ModelBinaryLoader.h"
 #include "Window.h"
 
 #include <ResourceBinFile.h>
@@ -46,12 +47,22 @@ IGraphics::Buff findResourceData(ResId p_Res, void* p_UserData)
 
 std::mutex loaded;
 std::condition_variable onLoaded;
-std::shared_ptr<ResourceHandle> loadedHandle;
+
+struct ResourceLoad
+{
+	ResId res;
+	std::string type;
+	std::string name;
+};
+std::vector<std::pair<std::shared_ptr<ResourceHandle>, ResourceLoad>> loadedHandles;
+
+std::vector<ResourceLoad> resLoads;
 
 void completionHandle(std::shared_ptr<ResourceHandle> handle, void* userData)
 {
 	std::unique_lock<std::mutex> lock(loaded);
-	loadedHandle = handle;
+	loadedHandles.push_back(std::make_pair(handle, *((ResourceLoad*)userData)));
+
 	onLoaded.notify_one();
 }
 
@@ -91,10 +102,6 @@ int main(int argc, char* argv[])
 
 	TweakSettings::initializeMaster();
 
-	std::unique_lock<std::mutex> lock(loaded);
-	cache.preload(cache.findByPath("assets/models/Barrel1.btx"), completionHandle, nullptr);
-	onLoaded.wait(lock, []{ return loadedHandle; });
-
 	IGraphics* graphics = IGraphics::createGraphics();
 	graphics->setResourceCallbacks(findResourceData, &cache, findResourceId, &cache);
 	graphics->setTweaker(TweakSettings::getInstance());
@@ -110,7 +117,82 @@ int main(int argc, char* argv[])
 	graphics->createSkydome("SKYDOME", 500000.f);
 
 	ResId barrelId = cache.findByPath("assets/models/Barrel1.btx");
-	graphics->createModel("Barrel", barrelId);
+	resLoads.push_back(ResourceLoad());
+	resLoads.back().res = barrelId;
+	resLoads.back().type = "Model";
+	resLoads.back().name = "Barrel";
+
+	std::unique_lock<std::mutex> lock(loaded);
+
+	for (auto& res : resLoads)
+	{
+		cache.preload(res.res, completionHandle, &res);
+	}
+
+	size_t resourcesToLoad = resLoads.size();
+	while (resourcesToLoad > 0)
+	{
+		onLoaded.wait(lock, []{ return !loadedHandles.empty(); });
+
+		auto handle = loadedHandles.back();
+		loadedHandles.pop_back();
+		
+		--resourcesToLoad;
+
+		const Buffer& buff = handle.first->getBuffer();
+
+		if (handle.second.type == "Model")
+		{
+			ModelBinaryLoader loader;
+			loader.loadBinaryFromMemory(buff.data(), buff.size());
+
+			for (const auto& mat : loader.getMaterial())
+			{
+				ResId diffId = cache.findByPath("assets/textures/" + mat.m_DiffuseMap);
+				graphics->createTexture(mat.m_DiffuseMap.c_str(), diffId, "dds");
+				ResId normId = cache.findByPath("assets/textures/" + mat.m_NormalMap);
+				graphics->createTexture(mat.m_NormalMap.c_str(), normId, "dds");
+				ResId specId = cache.findByPath("assets/textures/" + mat.m_SpecularMap);
+				graphics->createTexture(mat.m_SpecularMap.c_str(), specId, "dds");
+			}
+
+			std::vector<CMaterial> mats;
+			for (const Material& mat : loader.getMaterial())
+			{
+				mats.push_back(CMaterial());
+				mats.back().m_DiffuseMap = mat.m_DiffuseMap.c_str();
+				mats.back().m_NormalMap = mat.m_NormalMap.c_str();
+				mats.back().m_SpecularMap = mat.m_SpecularMap.c_str();
+			}
+			std::vector<CMaterialBuffer> matBuffs;
+			for (const MaterialBuffer& matBuf : loader.getMaterialBuffer())
+			{
+				matBuffs.push_back(CMaterialBuffer());
+				matBuffs.back().start = matBuf.start;
+				matBuffs.back().length = matBuf.length;
+			}
+
+			const void* vertData;
+			size_t vertSize;
+			size_t numVerts;
+
+			if (loader.getAnimated())
+			{
+				vertData = loader.getAnimatedVertexBuffer().data();
+				vertSize = sizeof(AnimatedVertex);
+				numVerts = loader.getAnimatedVertexBuffer().size();
+			}
+			else
+			{
+				vertData = loader.getStaticVertexBuffer().data();
+				vertSize = sizeof(StaticVertex);
+				numVerts = loader.getStaticVertexBuffer().size();
+			}
+
+			graphics->createModel(handle.second.name.c_str(), mats.data(), mats.size(), matBuffs.data(), matBuffs.size(),
+				loader.getAnimated(), loader.getTransparent(), vertData, vertSize, numVerts, loader.getBoundingVolume().data());
+		}
+	}
 
 	IGraphics::InstanceId barrel = graphics->createModelInstance("Barrel");
 	graphics->setModelPosition(barrel, Vector3(0.f, 0.f, 200.f));
