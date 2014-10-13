@@ -62,6 +62,31 @@ int main(int argc, char* argv[])
 
 	Window win;
 
+	bool close = false;
+
+	win.registerCallback(WM_CLOSE,
+		[&close](WPARAM, LPARAM, LRESULT& res)
+		{
+			close = true;
+			res = 0;
+			return true;
+		});
+
+	win.registerCallback(WM_KEYDOWN,
+		[&close](WPARAM vKey, LPARAM, LRESULT& res)
+		{
+			if (vKey == VK_ESCAPE)
+			{
+				close = true;
+				res = 0;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		});
+
 	win.init("Resource test program", DirectX::XMFLOAT2(800, 480));
 
 	TweakSettings::initializeMaster();
@@ -98,7 +123,7 @@ int main(int argc, char* argv[])
 	cl::time_point currTime;
 	cl::time_point prevTime = cl::now();
 
-	while ((currTime = cl::now()) < stop)
+	while (!close && (currTime = cl::now()) < stop)
 	{
 		cl::duration frameTime = currTime - prevTime;
 		prevTime = currTime;
