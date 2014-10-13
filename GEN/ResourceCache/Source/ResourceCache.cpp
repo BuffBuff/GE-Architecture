@@ -6,6 +6,8 @@ namespace GENA
 {
 	std::shared_ptr<ResourceHandle> ResourceCache::find(ResId res)
 	{
+		std::lock_guard<std::mutex> lock(resourcesLock);
+
 		auto iter = resources.find(res);
 		if (iter == resources.end())
 		{
@@ -19,6 +21,8 @@ namespace GENA
 
 	void ResourceCache::update(std::shared_ptr<ResourceHandle> handle)
 	{
+		std::lock_guard<std::mutex> lock(leastRecentlyUsedLock);
+
 		leastRecentlyUsed.remove(handle);
 		leastRecentlyUsed.push_front(handle);
 	}
@@ -85,6 +89,10 @@ namespace GENA
 
 		if (handle)
 		{
+			std::unique_lock<std::mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
+			std::unique_lock<std::mutex> rLock(resourcesLock, std::defer_lock);
+			std::lock(lLock, rLock);
+
 			leastRecentlyUsed.push_front(handle);
 			resources[res] = handle;
 		}
@@ -92,8 +100,21 @@ namespace GENA
 		return handle;
 	}
 
+	void ResourceCache::asyncLoad(ResId res, void (*completionCallback)(std::shared_ptr<ResourceHandle>, void*), void* userData)
+	{
+		std::shared_ptr<ResourceHandle> handle = load(res);
+		if (handle)
+		{
+			completionCallback(handle, userData);
+		}
+	}
+
 	void ResourceCache::free(std::shared_ptr<ResourceHandle> gonner)
 	{
+		std::unique_lock<std::mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
+		std::unique_lock<std::mutex> rLock(resourcesLock, std::defer_lock);
+		std::lock(lLock, rLock);
+
 		resources.erase(gonner->resource);
 		leastRecentlyUsed.remove(gonner);
 	}
@@ -120,6 +141,10 @@ namespace GENA
 
 	char* ResourceCache::allocate(uint64_t size)
 	{
+		std::unique_lock<std::mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
+		std::unique_lock<std::mutex> rLock(resourcesLock, std::defer_lock);
+		std::lock(lLock, rLock);
+
 		if (!makeRoom(size))
 		{
 			return nullptr;
@@ -156,6 +181,12 @@ namespace GENA
 
 	ResourceCache::~ResourceCache()
 	{
+		for (std::thread& t : workers)
+		{
+			t.join();
+		}
+		workers.clear();
+
 		while (!leastRecentlyUsed.empty())
 		{
 			freeOneResource();
@@ -186,6 +217,20 @@ namespace GENA
 		}
 
 		return handle;
+	}
+
+	void ResourceCache::preload(ResId res, void (*completionCallback)(std::shared_ptr<ResourceHandle>, void*), void* userData)
+	{
+		std::shared_ptr<ResourceHandle> handle(find(res));
+		if (handle)
+		{
+			completionCallback(handle, userData);
+		}
+		else
+		{
+			std::thread newWorker(&ResourceCache::asyncLoad, this, res, completionCallback, userData);
+			workers.push_back(std::move(newWorker));
+		}
 	}
 
 	ResourceCache::ResId ResourceCache::findByPath(const std::string path) const

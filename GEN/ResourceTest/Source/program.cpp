@@ -14,6 +14,7 @@
 #include <IGraphics.h>
 
 #include <chrono>
+#include <condition_variable>
 
 using namespace GENA;
 
@@ -43,6 +44,17 @@ IGraphics::Buff findResourceData(ResId p_Res, void* p_UserData)
 	return retBuff;
 }
 
+std::mutex loaded;
+std::condition_variable onLoaded;
+std::shared_ptr<ResourceHandle> loadedHandle;
+
+void completionHandle(std::shared_ptr<ResourceHandle> handle, void* userData)
+{
+	std::unique_lock<std::mutex> lock(loaded);
+	loadedHandle = handle;
+	onLoaded.notify_one();
+}
+
 int main(int argc, char* argv[])
 {
 	ResourceCache cache(30, std::unique_ptr<IResourceFile>(new ResourceBinFile("resources.bin")));
@@ -53,6 +65,10 @@ int main(int argc, char* argv[])
 	win.init("Resource test program", DirectX::XMFLOAT2(800, 480));
 
 	TweakSettings::initializeMaster();
+
+	std::unique_lock<std::mutex> lock(loaded);
+	cache.preload(cache.findByPath("assets/models/Barrel1.btx"), completionHandle, nullptr);
+	onLoaded.wait(lock, []{ return loadedHandle; });
 
 	IGraphics* graphics = IGraphics::createGraphics();
 	graphics->setResourceCallbacks(findResourceData, &cache, findResourceId, &cache);

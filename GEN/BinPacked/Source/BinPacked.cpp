@@ -116,6 +116,7 @@ namespace GENA
 	{
 		const Entry& entry = index.getEntry(id);
 
+		std::lock_guard<std::mutex> lock(archiveLock);
 		archive->seekg(entry.filepos);
 		archive->read(buffer, entry.fileSize);
 	}

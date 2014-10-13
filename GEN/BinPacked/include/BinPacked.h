@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -45,6 +46,7 @@ namespace GENA
 
 		Index index;
 		std::unique_ptr<std::istream> archive;
+		mutable std::mutex archiveLock;
 
 	public:
 		void bindArchive(std::unique_ptr<std::istream> archive);

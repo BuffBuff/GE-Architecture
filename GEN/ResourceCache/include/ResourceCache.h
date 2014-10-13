@@ -4,9 +4,13 @@
 #include "IResourceFile.h"
 #include "IResourceLoader.h"
 
+#include <atomic>
 #include <list>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <thread>
+#include <vector>
 
 namespace GENA
 {
@@ -23,17 +27,22 @@ namespace GENA
 
 	protected:
 		ResHandleList leastRecentlyUsed;
+		std::mutex leastRecentlyUsedLock;
 		ResHandleMap resources;
+		std::mutex resourcesLock;
 		ResourceLoaders resourceLoaders;
 
 		std::unique_ptr<IResourceFile> file;
 
 		uint64_t cacheSize;
-		uint64_t allocated;
+		std::atomic_uint64_t allocated;
+
+		std::vector<std::thread> workers;
 
 		std::shared_ptr<ResourceHandle> find(ResId res);
 		void update(std::shared_ptr<ResourceHandle> handle);
 		std::shared_ptr<ResourceHandle> load(ResId res);
+		void asyncLoad(ResId res, void (*completionCallback)(std::shared_ptr<ResourceHandle>, void*), void* userData);
 		void free(std::shared_ptr<ResourceHandle> gonner);
 
 		bool makeRoom(uint64_t size);
@@ -49,7 +58,7 @@ namespace GENA
 		void registerLoader(std::shared_ptr<IResourceLoader> loader);
 
 		std::shared_ptr<ResourceHandle> getHandle(ResId res);
-		int preload(const std::string pattern, void (*progressCallback)(int, bool&));
+		void preload(ResId res, void (*completionCallback)(std::shared_ptr<ResourceHandle>, void*), void* userData);
 		void flush();
 
 		ResId findByPath(const std::string path) const;
