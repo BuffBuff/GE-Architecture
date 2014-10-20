@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -13,10 +13,14 @@
   <ItemGroup>
     <ClInclude Include="include\BinPacked.h" />
     <ClInclude Include="include\ResourceBinFile.h" />
+    <ClInclude Include="include\ResourceZipFile.h" />
+    <ClInclude Include="include\ZipPacked.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\BinPacked.cpp" />
     <ClCompile Include="source\ResourceBinFile.cpp" />
+    <ClCompile Include="Source\ResourceZipFile.cpp" />
+    <ClCompile Include="Source\ZipPacked.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ResourceCache\ResourceCache.vcxproj">
@@ -66,11 +70,15 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
