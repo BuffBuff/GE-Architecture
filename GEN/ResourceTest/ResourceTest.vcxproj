@@ -82,6 +82,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\GraphicsCache.cpp" />
+    <ClCompile Include="Source\GraphicsHandle.cpp" />
     <ClCompile Include="Source\ModelBinaryLoader.cpp" />
     <ClCompile Include="Source\program.cpp" />
     <ClCompile Include="Source\Window.cpp" />
@@ -96,6 +98,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\ClientExceptions.h" />
+    <ClInclude Include="Source\GraphicsCache.h" />
+    <ClInclude Include="Source\GraphicsHandle.h" />
     <ClInclude Include="Source\ModelBinaryLoader.h" />
     <ClInclude Include="Source\Window.h" />
   </ItemGroup>
