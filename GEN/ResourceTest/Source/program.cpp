@@ -19,14 +19,22 @@
 
 using namespace GENA;
 
+struct State
+{
+	IGraphics* graphics;
+	ResourceCache* cache;
+};
+
 typedef uint32_t ResId;
 void loadModelTexture(const char* p_ResourceName, ResId p_Res, void* p_UserData)
 {
-	IGraphics* graphics = (IGraphics*)p_UserData;
-	graphics->createTexture(p_ResourceName, p_Res, "dds");
+	State* state = (State*)p_UserData;
+	std::shared_ptr<ResourceHandle> handle = state->cache->getHandle(p_Res);
+	const Buffer& buff = handle->getBuffer();
+	state->graphics->createTexture(p_ResourceName, buff.data(), buff.size(), "dds");
 }
 
-void releaseModelTexture(ResId p_Res, void* p_UserData)
+void releaseModelTexture(const char* p_ResourceName, void* p_UserData)
 {
 }
 
@@ -109,11 +117,15 @@ int main(int argc, char* argv[])
 	graphics->enableShadowMap(true);
 	graphics->initialize(win.getHandle(), (int)win.getSize().x, (int)win.getSize().y, false, 60.f);
 
-	graphics->setLoadModelTextureCallBack(loadModelTexture, graphics);
-	graphics->setReleaseModelTextureCallBack(releaseModelTexture, graphics);
+	State state = { graphics, &cache };
+
+	graphics->setLoadModelTextureCallBack(loadModelTexture, &state);
+	graphics->setReleaseModelTextureCallBack(releaseModelTexture, &state);
 
 	ResId skyDomeId = cache.findByPath("assets/textures/Skybox1_COLOR.dds");
-	graphics->createTexture("SKYDOME", skyDomeId, "dds");
+	std::shared_ptr<ResourceHandle> skyDomeHandle = cache.getHandle(skyDomeId);
+	const Buffer& skyDomeBuff = skyDomeHandle->getBuffer();
+	graphics->createTexture("SKYDOME", skyDomeBuff.data(), skyDomeBuff.size(), "dds");
 	graphics->createSkydome("SKYDOME", 500000.f);
 
 	ResId barrelId = cache.findByPath("assets/models/Barrel1.btx");
@@ -149,11 +161,19 @@ int main(int argc, char* argv[])
 			for (const auto& mat : loader.getMaterial())
 			{
 				ResId diffId = cache.findByPath("assets/textures/" + mat.m_DiffuseMap);
-				graphics->createTexture(mat.m_DiffuseMap.c_str(), diffId, "dds");
+				std::shared_ptr<ResourceHandle> diffHandle = cache.getHandle(diffId);
+				const Buffer& diffBuff = diffHandle->getBuffer();
+				graphics->createTexture(mat.m_DiffuseMap.c_str(), diffBuff.data(), diffBuff.size(), "dds");
+
 				ResId normId = cache.findByPath("assets/textures/" + mat.m_NormalMap);
-				graphics->createTexture(mat.m_NormalMap.c_str(), normId, "dds");
+				std::shared_ptr<ResourceHandle> normHandle = cache.getHandle(normId);
+				const Buffer& normBuff = normHandle->getBuffer();
+				graphics->createTexture(mat.m_NormalMap.c_str(), normBuff.data(), normBuff.size(), "dds");
+
 				ResId specId = cache.findByPath("assets/textures/" + mat.m_SpecularMap);
-				graphics->createTexture(mat.m_SpecularMap.c_str(), specId, "dds");
+				std::shared_ptr<ResourceHandle> specHandle = cache.getHandle(specId);
+				const Buffer& specBuff = specHandle->getBuffer();
+				graphics->createTexture(mat.m_SpecularMap.c_str(), specBuff.data(), specBuff.size(), "dds");
 			}
 
 			std::vector<CMaterial> mats;
