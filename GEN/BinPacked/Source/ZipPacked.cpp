@@ -137,6 +137,11 @@ namespace GENA
 		fileEntry.filepos = out.tellp();
 		
 		std::ifstream source(fileEntry.filename, std::ios::binary);
+		if (!source)
+		{
+			throw std::runtime_error("Missing file: " + fileEntry.filename);
+		}
+
 		source.seekg(0, std::ios_base::end);
 		std::streampos length = source.tellg(); 
 		source.seekg(0);

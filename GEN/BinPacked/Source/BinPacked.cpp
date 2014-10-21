@@ -150,6 +150,11 @@ namespace GENA
 		}
 
 		std::ifstream source(fileEntry.filename, std::ios::binary);
+		if (!source)
+		{
+			throw std::runtime_error("Missing file: " + fileEntry.filename);
+		}
+
 		out << source.rdbuf();
 		auto endPos = out.tellp();
 

@@ -156,6 +156,7 @@ void extractFile(const char* resourceFilename, const char* resourceName, const c
 }
 
 int main(int argc, char * argv[])
+try
 {
 	std::string usage = "Usage: ";
 	usage.append(argv[0]).append(" <command> [args]\n"
@@ -259,4 +260,11 @@ int main(int argc, char * argv[])
 	}
 
 	return EXIT_SUCCESS;
+}
+catch (std::exception& ex)
+{
+	std::cerr << ex.what() << std::endl;
+#ifdef _DEBUG
+	throw;
+#endif
 }
