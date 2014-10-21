@@ -102,6 +102,7 @@ namespace GENA
 		{
 			ser(out, val.filepos);
 			ser(out, val.fileSize);
+			ser(out, val.compSize);
 			out.write(val.resType.data(), 8);
 			ser(out, val.filename);
 		}
@@ -146,7 +147,7 @@ namespace GENA
 		{
 			des(in, val.filepos);
 			des(in, val.fileSize);
-
+			des(in, val.compSize);
 			char typeBuf[8];
 			in.read(typeBuf, 8);
 			val.resType.assign(typeBuf, 8);

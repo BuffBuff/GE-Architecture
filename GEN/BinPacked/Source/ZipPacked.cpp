@@ -1,5 +1,10 @@
 #include "ZipPacked.h"
-#include "zlib.h"
+#include <zlib.h>
+#if defined( NDEBUG ) || ! defined( _DEBUG )
+#pragma comment(lib, "zlibstatic")
+#else
+#pragma comment(lib, "zlibstaticd")
+#endif
 
 #include <fstream>
 
