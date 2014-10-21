@@ -25,8 +25,8 @@ void GraphicsCache::doWork()
 			{
 				throw std::runtime_error("Texture " + texReq.textureId + " already loaded");
 			}
-
-			std::shared_ptr<GraphicsHandle> resHandle(new GraphicsHandle(texReq.textureId, "Texture", this));
+			
+			std::shared_ptr<GraphicsHandle> resHandle(new (graphAlloc.alloc()) GraphicsHandle(texReq.textureId, "Texture", this), GRHAllocDeleter(graphAlloc));
 			
 			textureResMap[texReq.textureId] = resHandle;
 			

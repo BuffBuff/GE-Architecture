@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GraphicsHandle.h"
+#include "PoolAllocator.h"
 
 #include <ResourceCache.h>
 #include <ResourceHandle.h>
@@ -67,7 +68,25 @@ private:
 
 	typedef std::map<std::string, std::weak_ptr<GraphicsHandle>> GraphicsModelResMap;
 	typedef std::map<std::string, std::weak_ptr<GraphicsHandle>> GraphicsTextureResMap;
+	typedef GENA::PoolAllocator<sizeof(GraphicsHandle)> GRHAlloc;
+	template <typename Alloc>
+	struct AllocDeleter
+	{
+		Alloc& alloc;
 
+		AllocDeleter(Alloc& alloc)
+			: alloc(alloc)
+		{
+		}
+
+		void operator()(void* ptr)
+		{
+			alloc.free(ptr);
+		}
+	};
+	typedef AllocDeleter<typename GRHAlloc> GRHAllocDeleter;
+	
+	GRHAlloc graphAlloc;
 	std::vector<ModelReqP> createModelQueue;
 	std::vector<TextureReq> createTextureQueue;
 	std::vector<ModelRem> removeModelQueue;
@@ -87,7 +106,8 @@ private:
 public:
 	GraphicsCache(IGraphics* graphics, GENA::ResourceCache* cache)
 		: graphics(graphics),
-		cache(cache)
+		cache(cache),
+		graphAlloc(128)
 	{
 	}
 	~GraphicsCache();
