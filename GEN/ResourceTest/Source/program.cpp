@@ -11,7 +11,7 @@
 #include "ModelBinaryLoader.h"
 #include "Window.h"
 
-#include <ResourceBinFile.h>
+#include <ResourceZipFile.h>
 #include <ResourceCache.h>
 
 #include <IGraphics.h>
@@ -65,7 +65,7 @@ struct Model
 
 int main(int argc, char* argv[])
 {
-	ResourceCache cache(30, std::unique_ptr<IResourceFile>(new ResourceBinFile("resources.bin")));
+	ResourceCache cache(30, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
 	cache.init();
 
 	Window win;

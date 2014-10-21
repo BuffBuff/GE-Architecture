@@ -1,0 +1,1 @@
+..\Release\ResourcePacker.exe create zip resources.bin

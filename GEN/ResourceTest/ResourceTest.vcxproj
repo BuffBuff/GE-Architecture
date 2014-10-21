@@ -42,12 +42,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(BOOST_INC_DIR);$(HAV_COMMON_INC);$(HAV_GRAPHICS_INC);$(SolutionDir)BinPacked\include;$(SolutionDir)Util\include;$(SolutionDir)ResourceCache\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HAV_COMMON_LIBD);$(HAV_GRAPHICS_LIBD);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)3rd party\lib;$(HAV_COMMON_LIBD);$(HAV_GRAPHICS_LIBD);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(BOOST_INC_DIR);$(HAV_COMMON_INC);$(HAV_GRAPHICS_INC);$(SolutionDir)BinPacked\include;$(SolutionDir)Util\include;$(SolutionDir)ResourceCache\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HAV_COMMON_LIB);$(HAV_GRAPHICS_LIB);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)3rd party\lib;$(HAV_COMMON_LIB);$(HAV_GRAPHICS_LIB);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
