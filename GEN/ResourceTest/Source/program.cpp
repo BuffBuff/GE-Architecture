@@ -19,6 +19,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <forward_list>
+#include <sstream>
 
 using namespace GENA;
 
@@ -123,16 +124,44 @@ int main(int argc, char* argv[])
 			graphics->createSkydome("SKYDOME", 500000.f);
 		});
 
-	ResId barrelId = cache.findByPath("assets/models/Barrel1.btx");
-	Model barrel = { 0, 0 };
+	std::vector<Model> objects;
 	
-	gCache.asyncLoadModel("Barrel", barrelId,
-		[&](std::shared_ptr<GraphicsHandle> res)
+	std::shared_ptr<ResourceHandle> room1 = cache.getHandle(2784892733);
+	const Buffer& buff = room1->getBuffer();
+
+	std::istringstream iss(std::string(buff.data(), buff.size()));
+	std::string word;
+
+	iss >> word;
+	while (iss)
+	{
+		assert(word == "-");
+		iss >> word;
+		assert(word == "res:");
+		ResId res = 0;
+		iss >> res;
+		iss >> word;
+		assert(word == "x:");
+		float x, y, z;
+		iss >> x;
+		iss >> word;
+		assert(word == "y:");
+		iss >> y;
+		iss >> word;
+		assert(word == "z:");
+		iss >> z;
+		iss >> word;
+		
+		std::string resName = cache.findPath(res);
+
+		gCache.asyncLoadModel(resName, res,
+		[=, &objects](std::shared_ptr<GraphicsHandle> res)
 		{
-			barrel.res = res;
-			barrel.id = graphics->createModelInstance("Barrel");
-			graphics->setModelPosition(barrel.id, Vector3(0.f, 0.f, 200.f));
+			Model m = { res, graphics->createModelInstance(resName.c_str()) };
+			objects.push_back(m);
+			graphics->setModelPosition(m.id, Vector3(x, y, z));
 		});
+	}
 
 	typedef std::chrono::steady_clock cl;
 	cl::time_point stop = cl::now() + std::chrono::seconds(10);
@@ -160,9 +189,9 @@ int main(int argc, char* argv[])
 		graphics->useFrameDirectionalLight(Vector3(1.f, 1.f, 1.f), Vector3(-0.3f, -0.8f, 0.f), 1.f);
 		graphics->useFramePointLight(Vector3(0.f, 100.f, 0.f), Vector3(1.f, 1.f, 1.f), 1000.f);
 
-		if (barrel.id != 0)
+		for (const Model& m : objects)
 		{
-			graphics->renderModel(barrel.id);
+			graphics->renderModel(m.id);
 		}
 
 		if (skyDomeGRes)
@@ -171,9 +200,12 @@ int main(int argc, char* argv[])
 		}
 
 		graphics->drawFrame();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(15) - frameTime);
 	}
 
-	barrel.res.reset();
+	objects.clear();
+
 	skyDomeGRes.reset();
 	gCache.clear();
 
