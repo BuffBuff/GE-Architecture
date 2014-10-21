@@ -19,7 +19,7 @@ void GraphicsCache::doWork()
 		for (auto& texReq : createTextureQueue)
 		{
 			const Buffer& buff = texReq.resource->getBuffer();
-			graphics->createTexture(texReq.textureId.c_str(), buff.data(), buff.size(), texReq.filetype.c_str());
+			graphics->createTexture(texReq.textureId.c_str(), buff.data(), buff.size());
 			
 			if (textureResMap.count(texReq.textureId) > 0)
 			{
@@ -247,7 +247,7 @@ void GraphicsCache::asyncLoadTexture(std::string textureId, ResId resId, GCreate
 			CompletionHandler* ch = new CompletionHandler(
 				[=](std::shared_ptr<ResourceHandle> resource)
 				{
-					TextureReq req = { textureId, resource, "dds" };
+					TextureReq req = { textureId, resource };
 					queueLoadTexture(req);
 				});
 			cache->preload(resId, completionHelper, ch);
@@ -281,7 +281,7 @@ void GraphicsCache::loadModelTexture(std::string textureId, ModelReqP modelReq)
 			CompletionHandler* ch = new CompletionHandler(
 				[=](std::shared_ptr<ResourceHandle> resource)
 			{
-				TextureReq req = { textureId, resource, "dds" };
+				TextureReq req = { textureId, resource };
 				queueLoadTexture(req);
 			});
 			cache->preload(resId, completionHelper, ch);

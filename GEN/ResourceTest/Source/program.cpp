@@ -35,7 +35,7 @@ void loadModelTexture(const char* p_ResourceName, ResId p_Res, void* p_UserData)
 	State* state = (State*)p_UserData;
 	std::shared_ptr<ResourceHandle> handle = state->cache->getHandle(p_Res);
 	const Buffer& buff = handle->getBuffer();
-	state->graphics->createTexture(p_ResourceName, buff.data(), buff.size(), "dds");
+	state->graphics->createTexture(p_ResourceName, buff.data(), buff.size());
 }
 
 void releaseModelTexture(const char* p_ResourceName, void* p_UserData)

@@ -43,7 +43,6 @@ struct TextureReq
 {
 	std::string textureId;
 	std::shared_ptr<GENA::ResourceHandle> resource;
-	std::string filetype;
 };
 
 struct ModelRem
