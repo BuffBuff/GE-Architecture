@@ -16,6 +16,7 @@
 2254695027 hlsl     assets/shaders/ForwardShader.hlsl
 2275282084 hlsl     assets/shaders/HUD_Shader.hlsl
 2284810656 hlsl     assets/shaders/LightPassDirectionalLight.hlsl
+2784892733 txt      assets/rooms/room1.txt
 3262230924 dds      assets/textures/Barrel_NRM.dds
 3522450160 hlsl     assets/shaders/BoundingVolume.hlsl
 3571515333 hlsl     assets/shaders/SkyDome.hlsl
