@@ -263,4 +263,9 @@ namespace GENA
 
 		throw std::runtime_error(path + " could not be mapped to a resource");
 	}
+
+	std::string ResourceCache::findPath(ResId res) const
+	{
+		return file->getResourceName(res);
+	}
 }

@@ -63,5 +63,6 @@ namespace GENA
 		void flush();
 
 		ResId findByPath(const std::string path) const;
+		std::string findPath(ResId res) const;
 	};
 }
