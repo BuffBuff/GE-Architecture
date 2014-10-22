@@ -66,7 +66,7 @@ struct Model
 
 int main(int argc, char* argv[])
 {
-	ResourceCache cache(30, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
+	ResourceCache cache(60, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
 	cache.init();
 
 	Window win;
@@ -160,11 +160,11 @@ int main(int argc, char* argv[])
 			Model m = { res, graphics->createModelInstance(resName.c_str()) };
 			objects.push_back(m);
 			graphics->setModelPosition(m.id, Vector3(x, y, z));
+			std::cout << "Created an instance of " << resName << " at (" << x << ", " << y << ", " << z << ")\n";
 		});
 	}
 
 	typedef std::chrono::steady_clock cl;
-	cl::time_point stop = cl::now() + std::chrono::seconds(10);
 
 	float currAngle = 0.f;
 
@@ -173,8 +173,9 @@ int main(int argc, char* argv[])
 
 	uint64_t maxCacheUsage = 0;
 
-	while (!close && (currTime = cl::now()) < stop)
+	while (!close)
 	{
+		currTime = cl::now();
 		cl::duration frameTime = currTime - prevTime;
 		prevTime = currTime;
 
@@ -213,6 +214,11 @@ int main(int argc, char* argv[])
 		std::this_thread::sleep_for(std::chrono::milliseconds(15) - frameTime);
 	}
 
+	for (Model& m : objects)
+	{
+		graphics->eraseModelInstance(m.id);
+		std::cout << "Removed model instance\n";
+	}
 	objects.clear();
 
 	skyDomeGRes.reset();

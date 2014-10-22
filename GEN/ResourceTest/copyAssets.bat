@@ -14,7 +14,9 @@ MKDIR "%DEST_DIR%\models"
 MKDIR "%DEST_DIR%\textures"
 
 ECHO(Converting models.
-CALL "%CONV%" "%SRC_DIR%\Model\Barrel1.tx" "%DEST_DIR%"
+FOR %%f IN (%SRC_DIR%\Model\*.tx) DO (
+	CALL "%CONV%" %%f "%DEST_DIR%"
+)
 ECHO(
 
 DEL "%DEST_DIR%\Resources.xml"
