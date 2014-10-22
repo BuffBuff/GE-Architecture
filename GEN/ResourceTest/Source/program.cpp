@@ -76,10 +76,35 @@ GraphicsCache* ggCache;
 IGraphics* graphics;
 RoomMap rooms;
 
-const static float roomSize = 100.f;
-
-void loadRoom(int roomNr, std::shared_ptr<ResourceHandle> roomRes)
+template <typename T, size_t N>
+size_t arrSize(T(&)[N])
 {
+	return N;
+}
+
+ResId decideRoomRes(int roomNr)
+{
+	const static ResId rooms[] =
+	{
+		2784892733,
+		2356309912,
+		970641542,
+	};
+	const static size_t numRooms = arrSize(rooms);
+	roomNr %= numRooms;
+	if (roomNr < 0)
+	{
+		roomNr += numRooms;
+	}
+	return rooms[roomNr];
+}
+
+const static float roomSize = 1000.f;
+
+void loadRoom(int roomNr)
+{
+	ResId roomId = decideRoomRes(roomNr);
+	std::shared_ptr<ResourceHandle> roomRes = cache.getHandle(roomId);
 	const Buffer& buff = roomRes->getBuffer();
 
 	uint32_t numObjs = *(uint32_t*)buff.data();
@@ -253,11 +278,10 @@ int main(int argc, char* argv[])
 			graphics->createSkydome("SKYDOME", 500000.f);
 		});
 
-	std::shared_ptr<ResourceHandle> room1 = cache.getHandle(2784892733);
 	int currRoom = 0;
-	loadRoom(currRoom - 1, room1);
-	loadRoom(currRoom, room1);
-	loadRoom(currRoom + 1, room1);
+	loadRoom(currRoom - 1);
+	loadRoom(currRoom);
+	loadRoom(currRoom + 1);
 
 	typedef std::chrono::steady_clock cl;
 
@@ -317,12 +341,12 @@ int main(int argc, char* argv[])
 			if (room == currRoom + 1)
 			{
 				unloadRoom(currRoom - 1);
-				loadRoom(room + 1, room1);
+				loadRoom(room + 1);
 			}
 			else if (room == currRoom - 1)
 			{
 				unloadRoom(currRoom + 1);
-				loadRoom(room - 1, room1);
+				loadRoom(room - 1);
 			}
 			else
 			{
@@ -330,9 +354,9 @@ int main(int argc, char* argv[])
 				unloadRoom(currRoom - 1);
 				unloadRoom(currRoom);
 				unloadRoom(currRoom + 1);
-				loadRoom(room - 1, room1);
-				loadRoom(room, room1);
-				loadRoom(room + 1, room1);
+				loadRoom(room - 1);
+				loadRoom(room);
+				loadRoom(room + 1);
 			}
 
 			currRoom = room;
