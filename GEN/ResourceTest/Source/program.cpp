@@ -80,6 +80,12 @@ int main(int argc, char* argv[])
 
 	bool close = false;
 
+	bool goForward = false;
+	bool goBackward = false;
+
+	int mouseX = 0;
+	int mouseY = 0;
+
 	win.registerCallback(WM_CLOSE,
 		[&close](WPARAM, LPARAM, LRESULT& res)
 		{
@@ -89,21 +95,79 @@ int main(int argc, char* argv[])
 		});
 
 	win.registerCallback(WM_KEYDOWN,
-		[&close](WPARAM vKey, LPARAM, LRESULT& res)
+		[&](WPARAM vKey, LPARAM, LRESULT& res)
 		{
-			if (vKey == VK_ESCAPE)
+			switch (vKey)
 			{
+			case VK_ESCAPE:
 				close = true;
 				res = 0;
 				return true;
-			}
-			else
-			{
+			
+			case 'W':
+				goForward = true;
+				res = 0;
+				return true;
+
+			case 'S':
+				goBackward = true;
+				res = 0;
+				return true;
+
+			default:
 				return false;
 			}
 		});
 
+	win.registerCallback(WM_KEYUP,
+		[&](WPARAM vKey, LPARAM, LRESULT& res)
+		{
+			switch (vKey)
+			{
+			case 'W':
+				goForward = false;
+				res = 0;
+				return true;
+
+			case 'S':
+				goBackward = false;
+				res = 0;
+				return true;
+
+			default:
+				return false;
+			}
+		});
+
+	win.registerCallback(WM_MOUSEMOVE,
+		[&](WPARAM wParam, LPARAM lParam, LRESULT& res)
+		{
+			mouseX = (short)(lParam & 0x0000ffff);
+			mouseY = (short)((lParam & 0xffff0000) >> 16);
+			res = 0;
+			return true;
+		});
+
+	bool active = true;
+	POINT winCenterPos;
+	win.registerCallback(WM_ACTIVATE,
+		[&](WPARAM wParam, LPARAM, LRESULT& res)
+		{
+			bool prevActive = active;
+			active = (wParam != 0);
+			if (active != prevActive)
+			{
+				ShowCursor(!active);
+				POINT screenMousePos = winCenterPos;
+				ClientToScreen(win.getHandle(), &screenMousePos);
+				SetCursorPos(screenMousePos.x, screenMousePos.y);
+			}
+			res = 0;
+			return true;
+		});
+
 	win.init("Resource test program", DirectX::XMFLOAT2(800, 480));
+	ShowCursor(FALSE);
 
 	TweakSettings::initializeMaster();
 
@@ -113,6 +177,14 @@ int main(int argc, char* argv[])
 	graphics->setShadowMapResolution(1024);
 	graphics->enableShadowMap(true);
 	graphics->initialize(win.getHandle(), (int)win.getSize().x, (int)win.getSize().y, false, 60.f);
+
+	RECT rect;
+	GetWindowRect(win.getHandle(), &rect);
+	SetCursorPos((rect.right + rect.left) / 2, (rect.top + rect.bottom) / 2);
+	GetCursorPos(&winCenterPos);
+	ScreenToClient(win.getHandle(), &winCenterPos);
+	mouseX = winCenterPos.x;
+	mouseY = winCenterPos.y;
 
 	State state = { graphics, &cache };
 
@@ -173,7 +245,10 @@ int main(int argc, char* argv[])
 
 	typedef std::chrono::steady_clock cl;
 
-	float currAngle = 0.f;
+	float xPos = 0;
+
+	float yaw = 0;
+	float pitch = 0;
 
 	cl::time_point currTime;
 	cl::time_point prevTime = cl::now();
@@ -191,8 +266,34 @@ int main(int argc, char* argv[])
 		win.pollMessages();
 		gCache.doWork();
 
-		const static float angleSpeed = 1.f;
-		currAngle += angleSpeed * dt;
+		if (active)
+		{
+			int dX = mouseX - winCenterPos.x;
+			int dY = mouseY - winCenterPos.y;
+			POINT screenMousePos = winCenterPos;
+			ClientToScreen(win.getHandle(), &screenMousePos);
+			SetCursorPos(screenMousePos.x, screenMousePos.y);
+
+			const static float mouseSense = 0.01f;
+
+			yaw += dX * mouseSense;
+			pitch += dY * mouseSense;
+			if (pitch > PI * 0.25f)
+			{
+				pitch = PI * 0.25f;
+			}
+			else if (pitch < -PI * 0.25f)
+			{
+				pitch = -PI * 0.25f;
+			}
+		}
+
+		float direction = 0.f;
+		if (goForward) direction += 1.f;
+		if (goBackward) direction -= 1.f;
+
+		const static float moveSpeed = 500.f;
+		xPos += dt * direction * moveSpeed;
 
 		uint64_t newCacheUsage = cache.getMaxMemAllocated();
 		if (newCacheUsage > maxCacheUsage)
@@ -201,7 +302,8 @@ int main(int argc, char* argv[])
 			std::cout << "New cache max: " << maxCacheUsage << std::endl;
 		}
 
-		graphics->updateCamera(Vector3(0.f, 0.f, 0.f), Vector3(sin(currAngle), 0.f, cos(currAngle)), Vector3(0.f, 1.f, 0.f));
+		float cosP = cos(pitch);
+		graphics->updateCamera(Vector3(xPos, 0.f, 0.f), Vector3(sin(yaw) * cosP, -sin(pitch), cos(yaw) * cosP), Vector3(0.f, 1.f, 0.f));
 
 		graphics->useFrameDirectionalLight(Vector3(1.f, 1.f, 1.f), Vector3(-0.3f, -0.8f, 0.f), 1.f);
 		graphics->useFramePointLight(Vector3(0.f, 100.f, 0.f), Vector3(1.f, 1.f, 1.f), 1000.f);
