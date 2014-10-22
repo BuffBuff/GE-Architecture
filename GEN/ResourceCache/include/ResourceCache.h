@@ -36,6 +36,7 @@ namespace GENA
 
 		uint64_t cacheSize;
 		std::atomic_uint64_t allocated;
+		uint64_t maxAllocated;
 
 		std::map<ResId, std::thread> workers;
 		std::mutex workerLock;
@@ -64,5 +65,7 @@ namespace GENA
 
 		ResId findByPath(const std::string path) const;
 		std::string findPath(ResId res) const;
+
+		uint64_t getMaxMemAllocated() const;
 	};
 }

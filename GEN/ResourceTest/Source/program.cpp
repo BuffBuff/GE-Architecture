@@ -171,6 +171,8 @@ int main(int argc, char* argv[])
 	cl::time_point currTime;
 	cl::time_point prevTime = cl::now();
 
+	uint64_t maxCacheUsage = 0;
+
 	while (!close && (currTime = cl::now()) < stop)
 	{
 		cl::duration frameTime = currTime - prevTime;
@@ -183,6 +185,13 @@ int main(int argc, char* argv[])
 
 		const static float angleSpeed = 1.f;
 		currAngle += angleSpeed * dt;
+
+		uint64_t newCacheUsage = cache.getMaxMemAllocated();
+		if (newCacheUsage > maxCacheUsage)
+		{
+			maxCacheUsage = newCacheUsage;
+			std::cout << "New cache max: " << maxCacheUsage << std::endl;
+		}
 
 		graphics->updateCamera(Vector3(0.f, 0.f, 0.f), Vector3(sin(currAngle), 0.f, cos(currAngle)), Vector3(0.f, 1.f, 0.f));
 

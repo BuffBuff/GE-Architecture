@@ -153,7 +153,11 @@ namespace GENA
 		char* mem = new char[(size_t)size];
 		if (mem)
 		{
-			allocated += size;
+			uint64_t alloced = allocated += size;
+			if (alloced > maxAllocated)
+			{
+				maxAllocated = alloced;
+			}
 		}
 
 		return mem;
@@ -175,6 +179,7 @@ namespace GENA
 	ResourceCache::ResourceCache(uint64_t sizeInMiB, std::unique_ptr<IResourceFile>&& resFile)
 		: cacheSize(sizeInMiB * 1024 * 1024),
 		allocated(0),
+		maxAllocated(0),
 		file(std::move(resFile))
 	{
 	}
@@ -267,5 +272,10 @@ namespace GENA
 	std::string ResourceCache::findPath(ResId res) const
 	{
 		return file->getResourceName(res);
+	}
+
+	uint64_t ResourceCache::getMaxMemAllocated() const
+	{
+		return maxAllocated;
 	}
 }
