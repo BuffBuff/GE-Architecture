@@ -57,6 +57,9 @@ struct TextureRem
 	std::string textureId;
 	GRemovedHandler completionHandler;
 };
+	
+typedef std::function<void(std::shared_ptr<GENA::ResourceHandle>)> CompletionHandler;
+typedef GENA::PoolAllocator<sizeof(CompletionHandler)> COMAlloc;
 
 class GraphicsCache
 {
@@ -69,7 +72,8 @@ private:
 	typedef std::map<std::string, std::weak_ptr<GraphicsHandle>> GraphicsModelResMap;
 	typedef std::map<std::string, std::weak_ptr<GraphicsHandle>> GraphicsTextureResMap;
 	typedef GENA::PoolAllocator<sizeof(GraphicsHandle)> GRHAlloc;
-	template <typename Alloc>
+
+	template <typename Alloc, typename Obj>
 	struct AllocDeleter
 	{
 		Alloc& alloc;
@@ -79,13 +83,14 @@ private:
 		{
 		}
 
-		void operator()(void* ptr)
+		void operator()(Obj* ptr)
 		{
+			ptr->~Obj();
 			alloc.free(ptr);
 		}
 	};
-	typedef AllocDeleter<typename GRHAlloc> GRHAllocDeleter;
-	
+	typedef AllocDeleter<typename GRHAlloc, GraphicsHandle> GRHAllocDeleter;
+
 	GRHAlloc graphAlloc;
 	std::vector<ModelReqP> createModelQueue;
 	std::vector<TextureReq> createTextureQueue;

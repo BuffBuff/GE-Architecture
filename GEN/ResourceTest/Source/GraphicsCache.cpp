@@ -98,7 +98,7 @@ void GraphicsCache::doWork()
 				throw std::runtime_error("Model " + modReq->modelId + " already loaded");
 			}
 
-			std::shared_ptr<GraphicsHandle> resHandle(new GraphicsHandle(modReq->modelId, "Model", this));
+			std::shared_ptr<GraphicsHandle> resHandle(new (graphAlloc.alloc()) GraphicsHandle(modReq->modelId, "Model", this), GRHAllocDeleter(graphAlloc));
 			for (auto child : modReq->children)
 			{
 				resHandle->addChild(child);
@@ -154,13 +154,14 @@ void GraphicsCache::clear()
 	doWork();
 }
 
-typedef std::function<void(std::shared_ptr<ResourceHandle>)> CompletionHandler;
+static COMAlloc comAlloc(128);
 
 static void completionHelper(std::shared_ptr<ResourceHandle> resource, void* userData)
 {
 	CompletionHandler* handler = (CompletionHandler*)userData;
 	(*handler)(resource);
-	delete handler;
+	handler->~CompletionHandler();
+	comAlloc.free(handler);
 }
 
 void GraphicsCache::asyncLoadModel(std::string modelId, ResId resId, GCreatedHandler doneCallback)
@@ -191,7 +192,7 @@ void GraphicsCache::asyncLoadModel(std::string modelId, ResId resId, GCreatedHan
 
 		if (startLoading)
 		{
-			CompletionHandler* ch = new CompletionHandler(
+			CompletionHandler* ch = new (comAlloc.alloc()) CompletionHandler(
 				[=](std::shared_ptr<ResourceHandle> resource)
 				{
 					const Buffer& buff = resource->getBuffer();
@@ -244,7 +245,7 @@ void GraphicsCache::asyncLoadTexture(std::string textureId, ResId resId, GCreate
 
 		if (startLoading)
 		{
-			CompletionHandler* ch = new CompletionHandler(
+			CompletionHandler* ch = new (comAlloc.alloc()) CompletionHandler(
 				[=](std::shared_ptr<ResourceHandle> resource)
 				{
 					TextureReq req = { textureId, resource };
@@ -278,7 +279,7 @@ void GraphicsCache::loadModelTexture(std::string textureId, ModelReqP modelReq)
 
 		if (startLoading)
 		{
-			CompletionHandler* ch = new CompletionHandler(
+			CompletionHandler* ch = new (comAlloc.alloc()) CompletionHandler(
 				[=](std::shared_ptr<ResourceHandle> resource)
 			{
 				TextureReq req = { textureId, resource };

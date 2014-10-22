@@ -42,12 +42,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)MemoryAlloc\include;$(BOOST_INC_DIR);$(HAV_COMMON_INC);$(HAV_GRAPHICS_INC);$(SolutionDir)BinPacked\include;$(SolutionDir)Util\include;$(SolutionDir)ResourceCache\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)3rd party\lib;$(HAV_COMMON_LIBD);$(HAV_GRAPHICS_LIBD);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)3rd party\lib;$(VLD_LIB_DIR);$(HAV_COMMON_LIBD);$(HAV_GRAPHICS_LIBD);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)MemoryAlloc\include;$(BOOST_INC_DIR);$(HAV_COMMON_INC);$(HAV_GRAPHICS_INC);$(SolutionDir)BinPacked\include;$(SolutionDir)Util\include;$(SolutionDir)ResourceCache\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)3rd party\lib;$(HAV_COMMON_LIB);$(HAV_GRAPHICS_LIB);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)3rd party\lib;$(VLD_LIB_DIR);$(HAV_COMMON_LIB);$(HAV_GRAPHICS_LIB);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -57,6 +57,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(VLD_INC_DIR)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -73,6 +74,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>$(VLD_INC_DIR)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

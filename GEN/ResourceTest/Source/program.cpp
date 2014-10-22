@@ -21,6 +21,11 @@
 #include <forward_list>
 #include <sstream>
 
+#include <vld.h>
+
+#define SET_DBG_FLAG
+#define DUMP_LEAKS
+
 using namespace GENA;
 
 struct State
@@ -66,6 +71,8 @@ struct Model
 
 int main(int argc, char* argv[])
 {
+	SET_DBG_FLAG;
+	
 	ResourceCache cache(60, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
 	cache.init();
 
@@ -226,4 +233,6 @@ int main(int argc, char* argv[])
 
 	IGraphics::deleteGraphics(graphics);
 	win.destroy();
+
+	DUMP_LEAKS;
 }
