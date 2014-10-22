@@ -18,6 +18,7 @@
 #include <IGraphics.h>
 
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <forward_list>
 #include <sstream>
@@ -67,9 +68,60 @@ struct Model
 	IGraphics::InstanceId id;
 };
 
+typedef std::vector<Model> RoomV;
+typedef std::map<int, RoomV> RoomMap;
+
+ResourceCache cache(60, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
+GraphicsCache* ggCache;
+IGraphics* graphics;
+RoomMap rooms;
+
+const static float roomSize = 100.f;
+
+void loadRoom(int roomNr, std::shared_ptr<ResourceHandle> roomRes)
+{
+	const Buffer& buff = roomRes->getBuffer();
+
+	uint32_t numObjs = *(uint32_t*)buff.data();
+	const RoomObject* readObjPos = (RoomObject*)(buff.data() + sizeof(uint32_t));
+
+	rooms[roomNr];
+
+	for (uint32_t i = 0; i < numObjs; ++i)
+	{
+		std::string resName = cache.findPath(readObjPos->id);
+		float x = readObjPos->x + roomNr * roomSize;
+		float y = readObjPos->y;
+		float z = readObjPos->z;
+
+		ggCache->asyncLoadModel(resName, readObjPos->id,
+		[=](std::shared_ptr<GraphicsHandle> res)
+		{
+			if (rooms.count(roomNr) > 0)
+			{
+				Model m = { res, graphics->createModelInstance(resName.c_str()) };
+				rooms[roomNr].push_back(m);
+				graphics->setModelPosition(m.id, Vector3(x, y, z));
+				std::cout << "Created an instance of " << resName << " at (" << x << ", " << y << ", " << z << ")\n";
+			}
+		});
+
+		++readObjPos;
+	}
+}
+
+void unloadRoom(int roomNr)
+{
+	for (auto& m : rooms[roomNr])
+	{
+		graphics->eraseModelInstance(m.id);
+		std::cout << "Removed model instance\n";
+	}
+	rooms.erase(roomNr);
+}
+
 int main(int argc, char* argv[])
 {
-	ResourceCache cache(60, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
 	cache.init();
 	cache.registerLoader(std::shared_ptr<IResourceLoader>(new RoomResourceLoader()));
 
@@ -168,7 +220,7 @@ int main(int argc, char* argv[])
 
 	TweakSettings::initializeMaster();
 
-	IGraphics* graphics = IGraphics::createGraphics();
+	graphics = IGraphics::createGraphics();
 	graphics->setResourceCallbacks(findResourceData, &cache, findResourceId, &cache);
 	graphics->setTweaker(TweakSettings::getInstance());
 	graphics->setShadowMapResolution(1024);
@@ -189,6 +241,7 @@ int main(int argc, char* argv[])
 	graphics->setReleaseModelTextureCallBack(releaseModelTexture, &state);
 
 	GraphicsCache gCache(graphics, &cache);
+	ggCache = &gCache;
 
 	ResId skyDomeId = cache.findByPath("assets/textures/Skybox1_COLOR.dds");
 	std::shared_ptr<GraphicsHandle> skyDomeGRes;
@@ -200,32 +253,11 @@ int main(int argc, char* argv[])
 			graphics->createSkydome("SKYDOME", 500000.f);
 		});
 
-	std::vector<Model> objects;
-	
 	std::shared_ptr<ResourceHandle> room1 = cache.getHandle(2784892733);
-	const Buffer& buff = room1->getBuffer();
-
-	uint32_t numObjs = *(uint32_t*)buff.data();
-	const RoomObject* readObjPos = (RoomObject*)(buff.data() + sizeof(uint32_t));
-
-	for (uint32_t i = 0; i < numObjs; ++i)
-	{
-		std::string resName = cache.findPath(readObjPos->id);
-		float x = readObjPos->x;
-		float y = readObjPos->y;
-		float z = readObjPos->z;
-
-		gCache.asyncLoadModel(resName, readObjPos->id,
-		[=, &objects](std::shared_ptr<GraphicsHandle> res)
-		{
-			Model m = { res, graphics->createModelInstance(resName.c_str()) };
-			objects.push_back(m);
-			graphics->setModelPosition(m.id, Vector3(x, y, z));
-			std::cout << "Created an instance of " << resName << " at (" << x << ", " << y << ", " << z << ")\n";
-		});
-
-		++readObjPos;
-	}
+	int currRoom = 0;
+	loadRoom(currRoom - 1, room1);
+	loadRoom(currRoom, room1);
+	loadRoom(currRoom + 1, room1);
 
 	typedef std::chrono::steady_clock cl;
 
@@ -279,6 +311,33 @@ int main(int argc, char* argv[])
 		const static float moveSpeed = 500.f;
 		xPos += dt * direction * moveSpeed;
 
+		int room = (int)floor(xPos / roomSize);
+		if (room != currRoom)
+		{
+			if (room == currRoom + 1)
+			{
+				unloadRoom(currRoom - 1);
+				loadRoom(room + 1, room1);
+			}
+			else if (room == currRoom - 1)
+			{
+				unloadRoom(currRoom + 1);
+				loadRoom(room - 1, room1);
+			}
+			else
+			{
+				std::cerr << "Warning! Player moved more than one room at once!\n";
+				unloadRoom(currRoom - 1);
+				unloadRoom(currRoom);
+				unloadRoom(currRoom + 1);
+				loadRoom(room - 1, room1);
+				loadRoom(room, room1);
+				loadRoom(room + 1, room1);
+			}
+
+			currRoom = room;
+		}
+
 		uint64_t newCacheUsage = cache.getMaxMemAllocated();
 		if (newCacheUsage > maxCacheUsage)
 		{
@@ -292,9 +351,12 @@ int main(int argc, char* argv[])
 		graphics->useFrameDirectionalLight(Vector3(1.f, 1.f, 1.f), Vector3(-0.3f, -0.8f, 0.f), 1.f);
 		graphics->useFramePointLight(Vector3(0.f, 100.f, 0.f), Vector3(1.f, 1.f, 1.f), 1000.f);
 
-		for (const Model& m : objects)
+		for (const auto& room : rooms)
 		{
-			graphics->renderModel(m.id);
+			for (const Model& m : room.second)
+			{
+				graphics->renderModel(m.id);
+			}
 		}
 
 		if (skyDomeGRes)
@@ -307,14 +369,18 @@ int main(int argc, char* argv[])
 		std::this_thread::sleep_for(std::chrono::milliseconds(15) - frameTime);
 	}
 
-	for (Model& m : objects)
+	for (auto& room : rooms)
 	{
-		graphics->eraseModelInstance(m.id);
-		std::cout << "Removed model instance\n";
+		for (Model& m : room.second)
+		{
+			graphics->eraseModelInstance(m.id);
+			std::cout << "Removed model instance\n";
+		}
 	}
-	objects.clear();
+	rooms.clear();
 
 	skyDomeGRes.reset();
+	gCache.doWork();
 	gCache.clear();
 
 	IGraphics::deleteGraphics(graphics);
