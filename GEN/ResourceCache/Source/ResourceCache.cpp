@@ -237,21 +237,25 @@ namespace GENA
 
 	void ResourceCache::preload(ResId res, void (*completionCallback)(std::shared_ptr<ResourceHandle>, void*), void* userData)
 	{
-		std::unique_lock<std::mutex> lock(workerLock);
+		std::shared_ptr<ResourceHandle> handle;
 
-		std::shared_ptr<ResourceHandle> handle(find(res));
-		if (handle)
 		{
-			completionCallback(handle, userData);
-		}
-		else
-		{
-			if (workers.count(res) == 0)
+			std::unique_lock<std::mutex> lock(workerLock);
+
+			handle = find(res);
+			if (!handle)
 			{
-				std::thread newWorker(&ResourceCache::asyncLoad, this, res, completionCallback, userData);
-				workers.emplace(res, std::move(newWorker));
+				if (workers.count(res) == 0)
+				{
+					std::thread newWorker(&ResourceCache::asyncLoad, this, res, completionCallback, userData);
+					workers.emplace(res, std::move(newWorker));
+				}
+
+				return;
 			}
 		}
+
+		completionCallback(handle, userData);
 	}
 
 	ResourceCache::ResId ResourceCache::findByPath(const std::string path) const
