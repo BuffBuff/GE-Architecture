@@ -2,26 +2,45 @@
 
 #include "DefaultResourceLoader.h"
 
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
+
 namespace GENA
 {
 	std::shared_ptr<ResourceHandle> ResourceCache::find(ResId res)
 	{
-		std::lock_guard<std::mutex> lock(resourcesLock);
+		std::unique_lock<std::recursive_mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
+		std::unique_lock<std::recursive_mutex> rLock(resourcesLock, std::defer_lock);
+		std::lock(lLock, rLock);
 
 		auto iter = resources.find(res);
-		if (iter == resources.end())
-		{
-			return std::shared_ptr<ResourceHandle>();
-		}
-		else
+		if (iter != resources.end())
 		{
 			return iter->second;
 		}
+
+		auto weakIter = weakResources.find(res);
+		if (weakIter != weakResources.end())
+		{
+			std::shared_ptr<ResourceHandle> handle = weakIter->second.lock();
+			weakResources.erase(res);
+
+			if (handle)
+			{
+				resources[res] = handle;
+				leastRecentlyUsed.push_front(handle);
+
+				return handle;
+			}
+		}
+
+		return std::shared_ptr<ResourceHandle>();
 	}
 
 	void ResourceCache::update(std::shared_ptr<ResourceHandle> handle)
 	{
-		std::lock_guard<std::mutex> lock(leastRecentlyUsedLock);
+		std::lock_guard<std::recursive_mutex> lock(leastRecentlyUsedLock);
 
 		leastRecentlyUsed.remove(handle);
 		leastRecentlyUsed.push_front(handle);
@@ -89,8 +108,8 @@ namespace GENA
 
 		if (handle)
 		{
-			std::unique_lock<std::mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
-			std::unique_lock<std::mutex> rLock(resourcesLock, std::defer_lock);
+			std::unique_lock<std::recursive_mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
+			std::unique_lock<std::recursive_mutex> rLock(resourcesLock, std::defer_lock);
 			std::lock(lLock, rLock);
 
 			leastRecentlyUsed.push_front(handle);
@@ -111,44 +130,65 @@ namespace GENA
 
 	void ResourceCache::free(std::shared_ptr<ResourceHandle> gonner)
 	{
-		std::unique_lock<std::mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
-		std::unique_lock<std::mutex> rLock(resourcesLock, std::defer_lock);
+		std::unique_lock<std::recursive_mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
+		std::unique_lock<std::recursive_mutex> rLock(resourcesLock, std::defer_lock);
 		std::lock(lLock, rLock);
 
 		resources.erase(gonner->resource);
 		leastRecentlyUsed.remove(gonner);
+
+		std::weak_ptr<ResourceHandle> weakGonner = gonner;
+		gonner.reset();
+		gonner = weakGonner.lock();
+
+		if (gonner)
+		{
+			weakResources[gonner->resource] = gonner;
+		}
 	}
 
-	bool ResourceCache::makeRoom(uint64_t size)
+	void ResourceCache::makeRoom(uint64_t size)
 	{
 		if (size > cacheSize)
 		{
-			return false;
+			throw std::runtime_error("Object to large for cache");
 		}
 
 		while (size > cacheSize - allocated)
 		{
 			if (leastRecentlyUsed.empty())
 			{
-				return false;
+				std::streamsize oldWidth = std::cerr.width();
+				std::streamsize idWidth = std::numeric_limits<ResId>::digits10 + 1;
+				std::streamsize sizeWidth = std::numeric_limits<size_t>::digits10 + 1;
+
+				std::cerr << "Failed to make room for resource\n";
+				std::cerr << "\nResources currently loaded:\n";
+				for (const auto& res : weakResources)
+				{
+					std::shared_ptr<ResourceHandle> handle = res.second.lock();
+					if (handle)
+					{
+						std::cerr << std::setw(idWidth) << res.first << " "
+							<< std::setw(sizeWidth) << handle->getBuffer().size() << std::setw(oldWidth) << " B "
+							<< file->getResourceName(res.first) << "\n";
+					}
+				}
+				std::cerr << std::endl;
+				break;
 			}
 
 			freeOneResource();
 		}
-
-		return true;
 	}
 
 	char* ResourceCache::allocate(uint64_t size)
 	{
-		std::unique_lock<std::mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
-		std::unique_lock<std::mutex> rLock(resourcesLock, std::defer_lock);
+		std::unique_lock<std::recursive_mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
+		std::unique_lock<std::recursive_mutex> rLock(resourcesLock, std::defer_lock);
 		std::lock(lLock, rLock);
 
-		if (!makeRoom(size))
-		{
-			return nullptr;
-		}
+		makeRoom(size);
 
 		char* mem = new char[(size_t)size];
 		if (mem)
@@ -169,11 +209,29 @@ namespace GENA
 		leastRecentlyUsed.pop_back();
 
 		resources.erase(handle->resource);
+		leastRecentlyUsed.remove(handle);
+
+		std::weak_ptr<ResourceHandle> weakGonner = handle;
+		handle.reset();
+		handle = weakGonner.lock();
+
+		if (handle)
+		{
+			weakResources[handle->resource] = handle;
+		}
 	}
 
-	void ResourceCache::memoryHasBeenFreed(uint64_t size)
+	void ResourceCache::memoryHasBeenFreed(uint64_t size, ResId resId)
 	{
+		std::unique_lock<std::recursive_mutex> lLock(leastRecentlyUsedLock, std::defer_lock);
+		std::unique_lock<std::recursive_mutex> rLock(resourcesLock, std::defer_lock);
+		std::lock(lLock, rLock);
+
 		allocated -= size;
+		if (weakResources.count(resId) > 0)
+		{
+			weakResources.erase(resId);
+		}
 	}
 
 	ResourceCache::ResourceCache(uint64_t sizeInMiB, std::unique_ptr<IResourceFile>&& resFile)

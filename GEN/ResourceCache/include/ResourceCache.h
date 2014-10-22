@@ -16,6 +16,7 @@ namespace GENA
 {
 	typedef std::list<std::shared_ptr<ResourceHandle>> ResHandleList;
 	typedef std::map<ResourceHandle::ResId, std::shared_ptr<ResourceHandle>> ResHandleMap;
+	typedef std::map<ResourceHandle::ResId, std::weak_ptr<ResourceHandle>> WeakResMap;
 	typedef std::list<std::shared_ptr<IResourceLoader>> ResourceLoaders;
 
 	class ResourceCache
@@ -27,15 +28,16 @@ namespace GENA
 
 	protected:
 		ResHandleList leastRecentlyUsed;
-		std::mutex leastRecentlyUsedLock;
+		std::recursive_mutex leastRecentlyUsedLock;
 		ResHandleMap resources;
-		std::mutex resourcesLock;
+		WeakResMap weakResources;
+		std::recursive_mutex resourcesLock;
 		ResourceLoaders resourceLoaders;
 
 		std::unique_ptr<IResourceFile> file;
 
 		uint64_t cacheSize;
-		std::atomic_uint64_t allocated;
+		uint64_t allocated;
 		uint64_t maxAllocated;
 
 		std::map<ResId, std::thread> workers;
@@ -47,10 +49,10 @@ namespace GENA
 		void asyncLoad(ResId res, void (*completionCallback)(std::shared_ptr<ResourceHandle>, void*), void* userData);
 		void free(std::shared_ptr<ResourceHandle> gonner);
 
-		bool makeRoom(uint64_t size);
+		void makeRoom(uint64_t size);
 		char* allocate(uint64_t size);
 		void freeOneResource();
-		void memoryHasBeenFreed(uint64_t size);
+		void memoryHasBeenFreed(uint64_t size, ResId resId);
 
 	public:
 		ResourceCache(uint64_t sizeInMiB, std::unique_ptr<IResourceFile>&& resFile);
