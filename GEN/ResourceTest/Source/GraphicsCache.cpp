@@ -14,6 +14,40 @@ GraphicsCache::~GraphicsCache()
 void GraphicsCache::doWork()
 {
 	{
+		std::lock_guard<std::recursive_mutex> lock(modelResLock);
+
+		for (auto& modRem : removeModelQueue)
+		{
+			graphics->releaseModel(modRem.modelId.c_str());
+			
+			modelResMap.erase(modRem.modelId);
+
+			if (modRem.completionHandler)
+			{
+				modRem.completionHandler(modRem.modelId);
+			}
+		}
+		removeModelQueue.clear();
+	}
+
+	{
+		std::lock_guard<std::recursive_mutex> lock(textureResLock);
+
+		for (auto& texRem : removeTextureQueue)
+		{
+			graphics->releaseTexture(texRem.textureId.c_str());
+			
+			textureResMap.erase(texRem.textureId);
+
+			if (texRem.completionHandler)
+			{
+				texRem.completionHandler(texRem.textureId);
+			}
+		}
+		removeTextureQueue.clear();
+	}
+
+	{
 		std::lock_guard<std::recursive_mutex> lock(textureResLock);
 
 		for (auto& texReq : createTextureQueue)
@@ -114,36 +148,6 @@ void GraphicsCache::doWork()
 			}
 		}
 		std::swap(createModelQueue, savedModReq);
-	}
-
-	{
-		std::lock_guard<std::recursive_mutex> lock(modelResLock);
-
-		for (auto& modRem : removeModelQueue)
-		{
-			graphics->releaseModel(modRem.modelId.c_str());
-						
-			if (modRem.completionHandler)
-			{
-				modRem.completionHandler(modRem.modelId);
-			}
-		}
-		removeModelQueue.clear();
-	}
-
-	{
-		std::lock_guard<std::recursive_mutex> lock(textureResLock);
-
-		for (auto& texRem : removeTextureQueue)
-		{
-			graphics->releaseTexture(texRem.textureId.c_str());
-						
-			if (texRem.completionHandler)
-			{
-				texRem.completionHandler(texRem.textureId);
-			}
-		}
-		removeTextureQueue.clear();
 	}
 }
 
