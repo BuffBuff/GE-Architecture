@@ -17,6 +17,7 @@
 897597404 btx      assets/models/Wagon1.btx
 906283913 btx      assets/models/Bench1.btx
 938918358 btx      assets/LightModels/Sphere2.btx
+970641542 room     assets/rooms/room3.txt
 1011797075 dds      assets/textures/Well_COLOR.dds
 1064828532 dds      assets/textures/WoodDark_NRM.dds
 1109839746 btx      assets/models/MarketBox2.btx
@@ -38,6 +39,7 @@
 2275282084 hlsl     assets/shaders/HUD_Shader.hlsl
 2284810656 hlsl     assets/shaders/LightPassDirectionalLight.hlsl
 2300593877 btx      assets/models/Fireplace1.btx
+2356309912 room     assets/rooms/room2.txt
 2403542531 dds      assets/textures/Default_COLOR.dds
 2523918814 dds      assets/textures/StoneBrick_NRM.dds
 2536604187 btx      assets/models/WallLamp1.btx
