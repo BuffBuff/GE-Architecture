@@ -71,7 +71,7 @@ struct Model
 typedef std::vector<Model> RoomV;
 typedef std::map<int, RoomV> RoomMap;
 
-ResourceCache cache(60, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
+ResourceCache cache(35, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
 GraphicsCache* ggCache;
 IGraphics* graphics;
 RoomMap rooms;
