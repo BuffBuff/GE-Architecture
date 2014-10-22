@@ -18,7 +18,7 @@ NormalMap: WoodDark_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 Material: Steel
-DiffuseMap: steel_COLOR.dds
+DiffuseMap: Steel_COLOR.dds
 NormalMap: Default_NRM.dds
 SpecularMap: Default_SPEC.dds
 

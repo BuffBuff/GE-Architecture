@@ -8,12 +8,12 @@
 
 *Materials
 Material: DarkSteel
-DiffuseMap: steel2_COLOR.dds
+DiffuseMap: Steel2_COLOR.dds
 NormalMap: Default_NRM.dds
 SpecularMap: Default_SPEC.dds
 
 Material: Steel
-DiffuseMap: steel_COLOR.dds
+DiffuseMap: Steel_COLOR.dds
 NormalMap: Default_NRM.dds
 SpecularMap: Default_SPEC.dds
 
