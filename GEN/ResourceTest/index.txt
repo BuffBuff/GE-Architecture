@@ -44,7 +44,7 @@
 2582572836 dds      assets/textures/Well_NRM.dds
 2641445771 dds      assets/textures/Steel_COLOR.dds
 2676459878 dds      assets/textures/RoofTileCheck_COLOR.dds
-2784892733 txt      assets/rooms/room1.txt
+2784892733 room     assets/rooms/room1.txt
 3111365884 dds      assets/textures/Crate_NRM.dds
 3144140596 dds      assets/textures/Crate_COLOR.dds
 3189980534 dds      assets/textures/Sign1_NRM.dds

@@ -9,6 +9,7 @@
 #include "GraphicsCache.h"
 #include "GraphicsHandle.h"
 #include "ModelBinaryLoader.h"
+#include "RoomResourceLoader.h"
 #include "Window.h"
 
 #include <ResourceZipFile.h>
@@ -75,6 +76,7 @@ int main(int argc, char* argv[])
 	
 	ResourceCache cache(60, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
 	cache.init();
+	cache.registerLoader(std::shared_ptr<IResourceLoader>(new RoomResourceLoader()));
 
 	Window win;
 
@@ -208,32 +210,17 @@ int main(int argc, char* argv[])
 	std::shared_ptr<ResourceHandle> room1 = cache.getHandle(2784892733);
 	const Buffer& buff = room1->getBuffer();
 
-	std::istringstream iss(std::string(buff.data(), buff.size()));
-	std::string word;
+	uint32_t numObjs = *(uint32_t*)buff.data();
+	const RoomObject* readObjPos = (RoomObject*)(buff.data() + sizeof(uint32_t));
 
-	iss >> word;
-	while (iss)
+	for (uint32_t i = 0; i < numObjs; ++i)
 	{
-		assert(word == "-");
-		iss >> word;
-		assert(word == "res:");
-		ResId res = 0;
-		iss >> res;
-		iss >> word;
-		assert(word == "x:");
-		float x, y, z;
-		iss >> x;
-		iss >> word;
-		assert(word == "y:");
-		iss >> y;
-		iss >> word;
-		assert(word == "z:");
-		iss >> z;
-		iss >> word;
-		
-		std::string resName = cache.findPath(res);
+		std::string resName = cache.findPath(readObjPos->id);
+		float x = readObjPos->x;
+		float y = readObjPos->y;
+		float z = readObjPos->z;
 
-		gCache.asyncLoadModel(resName, res,
+		gCache.asyncLoadModel(resName, readObjPos->id,
 		[=, &objects](std::shared_ptr<GraphicsHandle> res)
 		{
 			Model m = { res, graphics->createModelInstance(resName.c_str()) };
@@ -241,6 +228,8 @@ int main(int argc, char* argv[])
 			graphics->setModelPosition(m.id, Vector3(x, y, z));
 			std::cout << "Created an instance of " << resName << " at (" << x << ", " << y << ", " << z << ")\n";
 		});
+
+		++readObjPos;
 	}
 
 	typedef std::chrono::steady_clock cl;
