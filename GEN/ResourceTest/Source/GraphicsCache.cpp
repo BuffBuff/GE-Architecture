@@ -4,6 +4,8 @@
 
 #include <IGraphics.h>
 
+#include <iostream>
+
 using namespace GENA;
 
 GraphicsCache::~GraphicsCache()
@@ -18,6 +20,8 @@ void GraphicsCache::doWork()
 
 		for (auto& modRem : removeModelQueue)
 		{
+			std::cout << "Releasing model data: " << modRem.modelId << std::endl;
+
 			graphics->releaseModel(modRem.modelId.c_str());
 			
 			modelResMap.erase(modRem.modelId);
@@ -35,6 +39,8 @@ void GraphicsCache::doWork()
 
 		for (auto& texRem : removeTextureQueue)
 		{
+			std::cout << "Releasing texture data: " << texRem.textureId << std::endl;
+
 			graphics->releaseTexture(texRem.textureId.c_str());
 			
 			textureResMap.erase(texRem.textureId);
@@ -52,6 +58,8 @@ void GraphicsCache::doWork()
 
 		for (auto& texReq : createTextureQueue)
 		{
+			std::cout << "Loading texture data: " << texReq.textureId << std::endl;
+
 			const Buffer& buff = texReq.resource->getBuffer();
 			graphics->createTexture(texReq.textureId.c_str(), buff.data(), buff.size());
 			
@@ -85,6 +93,8 @@ void GraphicsCache::doWork()
 				savedModReq.push_back(std::move(modReq));
 				continue;
 			}
+
+			std::cout << "Loading model data: " << modReq->modelId << std::endl;
 
 			const Buffer& buff = modReq->resource->getBuffer();
 
