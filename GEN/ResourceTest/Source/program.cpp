@@ -89,6 +89,7 @@ ResId decideRoomRes(int roomNr)
 		2784892733,
 		2356309912,
 		970641542,
+		2460769868,
 	};
 	const static size_t numRooms = arrSize(rooms);
 	roomNr %= numRooms;
