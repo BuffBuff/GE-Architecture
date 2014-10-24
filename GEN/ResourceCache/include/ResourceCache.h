@@ -41,7 +41,7 @@ namespace GENA
 		uint64_t maxAllocated;
 
 		std::map<ResId, std::thread> workers;
-		std::mutex workerLock;
+		std::recursive_mutex workerLock;
 
 		std::shared_ptr<ResourceHandle> find(ResId res);
 		void update(std::shared_ptr<ResourceHandle> handle);

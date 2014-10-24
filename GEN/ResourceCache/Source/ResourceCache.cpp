@@ -211,6 +211,16 @@ namespace GENA
 		resources.erase(handle->resource);
 		leastRecentlyUsed.remove(handle);
 
+		{
+			std::unique_lock<std::recursive_mutex> lock(workerLock);
+
+			if (workers.count(handle->resource) > 0)
+			{
+				workers[handle->resource].join();
+				workers.erase(handle->resource);
+			}
+		}
+
 		std::weak_ptr<ResourceHandle> weakGonner = handle;
 		handle.reset();
 		handle = weakGonner.lock();
@@ -269,7 +279,7 @@ namespace GENA
 
 	std::shared_ptr<ResourceHandle> ResourceCache::getHandle(ResId res)
 	{
-		std::unique_lock<std::mutex> lock(workerLock);
+		std::unique_lock<std::recursive_mutex> lock(workerLock);
 
 		std::shared_ptr<ResourceHandle> handle(find(res));
 		if (!handle)
@@ -298,7 +308,7 @@ namespace GENA
 		std::shared_ptr<ResourceHandle> handle;
 
 		{
-			std::unique_lock<std::mutex> lock(workerLock);
+			std::unique_lock<std::recursive_mutex> lock(workerLock);
 
 			handle = find(res);
 			if (!handle)
