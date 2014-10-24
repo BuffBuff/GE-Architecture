@@ -71,7 +71,7 @@ struct Model
 typedef std::vector<Model> RoomV;
 typedef std::map<int, RoomV> RoomMap;
 
-ResourceCache cache(35, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
+ResourceCache cache(26, std::unique_ptr<IResourceFile>(new ResourceZipFile("resources.bin")));
 GraphicsCache* ggCache;
 IGraphics* graphics;
 RoomMap rooms;
@@ -128,8 +128,6 @@ void loadRoom(int roomNr)
 				Model m = { res, graphics->createModelInstance(resName.c_str()) };
 				rooms[roomNr].push_back(m);
 				graphics->setModelPosition(m.id, Vector3(x, y, z));
-				if(g_CText)
-				std::cout << "Created an instance of " << resName << " at (" << x << ", " << y << ", " << z << ")\n";
 			}
 		});
 
@@ -142,8 +140,6 @@ void unloadRoom(int roomNr)
 	for (auto& m : rooms[roomNr])
 	{
 		graphics->eraseModelInstance(m.id);
-		if(g_CText)
-		std::cout << "Removed model instance\n";
 	}
 	rooms.erase(roomNr);
 }
@@ -178,22 +174,26 @@ int main(int argc, char* argv[])
 			{
 			case VK_ESCAPE:
 				close = true;
-				res = 0;
-				return true;
+				break;
 			
 			case 'W':
 				goForward = true;
-				res = 0;
-				return true;
+				break;
 
 			case 'S':
 				goBackward = true;
-				res = 0;
-				return true;
+				break;
+
+			case 'L':
+				g_CText = !g_CText;
+				break;
 
 			default:
 				return false;
 			}
+
+			res = 0;
+			return true;
 		});
 
 	win.registerCallback(WM_KEYUP,
@@ -401,8 +401,6 @@ int main(int argc, char* argv[])
 		for (Model& m : room.second)
 		{
 			graphics->eraseModelInstance(m.id);
-			if(g_CText)
-			std::cout << "Removed model instance\n";
 		}
 	}
 	rooms.clear();
