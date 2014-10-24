@@ -8,7 +8,7 @@
 
 using namespace GENA;
 
-bool g_CText = false;
+bool g_CText = true;
 
 GraphicsCache::~GraphicsCache()
 {
@@ -23,7 +23,7 @@ void GraphicsCache::doWork()
 		for (auto& modRem : removeModelQueue)
 		{
 			if(g_CText)
-			std::cout << "Releasing model data: " << modRem.modelId << std::endl;
+				std::cout << "Removing graphics resource: " << modRem.modelId << std::endl;
 
 			graphics->releaseModel(modRem.modelId.c_str());
 			
@@ -43,7 +43,7 @@ void GraphicsCache::doWork()
 		for (auto& texRem : removeTextureQueue)
 		{
 			if(g_CText)
-			std::cout << "Releasing texture data: " << texRem.textureId << std::endl;
+				std::cout << "Removing graphics resource: " << texRem.textureId << std::endl;
 
 			graphics->releaseTexture(texRem.textureId.c_str());
 			
@@ -63,7 +63,7 @@ void GraphicsCache::doWork()
 		for (auto& texReq : createTextureQueue)
 		{
 			if(g_CText)
-			std::cout << "Loading texture data: " << texReq.textureId << std::endl;
+				std::cout << "Uploading graphics resource: " << texReq.textureId << std::endl;
 
 			const Buffer& buff = texReq.resource->getBuffer();
 			graphics->createTexture(texReq.textureId.c_str(), buff.data(), buff.size());
@@ -99,7 +99,7 @@ void GraphicsCache::doWork()
 				continue;
 			}
 			if(g_CText)
-			std::cout << "Loading model data: " << modReq->modelId << std::endl;
+				std::cout << "Uploading graphics resource: " << modReq->modelId << std::endl;
 
 			const Buffer& buff = modReq->resource->getBuffer();
 
