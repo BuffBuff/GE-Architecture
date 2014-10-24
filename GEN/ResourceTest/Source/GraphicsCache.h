@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+extern bool g_CText;
+
 class IGraphics;
 
 typedef std::function<void(std::shared_ptr<GraphicsHandle>)> GCreatedHandler;

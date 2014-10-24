@@ -128,6 +128,7 @@ void loadRoom(int roomNr)
 				Model m = { res, graphics->createModelInstance(resName.c_str()) };
 				rooms[roomNr].push_back(m);
 				graphics->setModelPosition(m.id, Vector3(x, y, z));
+				if(g_CText)
 				std::cout << "Created an instance of " << resName << " at (" << x << ", " << y << ", " << z << ")\n";
 			}
 		});
@@ -141,6 +142,7 @@ void unloadRoom(int roomNr)
 	for (auto& m : rooms[roomNr])
 	{
 		graphics->eraseModelInstance(m.id);
+		if(g_CText)
 		std::cout << "Removed model instance\n";
 	}
 	rooms.erase(roomNr);
@@ -399,6 +401,7 @@ int main(int argc, char* argv[])
 		for (Model& m : room.second)
 		{
 			graphics->eraseModelInstance(m.id);
+			if(g_CText)
 			std::cout << "Removed model instance\n";
 		}
 	}

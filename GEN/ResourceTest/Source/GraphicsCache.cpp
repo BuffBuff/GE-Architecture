@@ -8,6 +8,8 @@
 
 using namespace GENA;
 
+bool g_CText = false;
+
 GraphicsCache::~GraphicsCache()
 {
 	clear();
@@ -20,6 +22,7 @@ void GraphicsCache::doWork()
 
 		for (auto& modRem : removeModelQueue)
 		{
+			if(g_CText)
 			std::cout << "Releasing model data: " << modRem.modelId << std::endl;
 
 			graphics->releaseModel(modRem.modelId.c_str());
@@ -39,6 +42,7 @@ void GraphicsCache::doWork()
 
 		for (auto& texRem : removeTextureQueue)
 		{
+			if(g_CText)
 			std::cout << "Releasing texture data: " << texRem.textureId << std::endl;
 
 			graphics->releaseTexture(texRem.textureId.c_str());
@@ -58,6 +62,7 @@ void GraphicsCache::doWork()
 
 		for (auto& texReq : createTextureQueue)
 		{
+			if(g_CText)
 			std::cout << "Loading texture data: " << texReq.textureId << std::endl;
 
 			const Buffer& buff = texReq.resource->getBuffer();
@@ -93,7 +98,7 @@ void GraphicsCache::doWork()
 				savedModReq.push_back(std::move(modReq));
 				continue;
 			}
-
+			if(g_CText)
 			std::cout << "Loading model data: " << modReq->modelId << std::endl;
 
 			const Buffer& buff = modReq->resource->getBuffer();
