@@ -42,6 +42,8 @@ namespace GENA
 
 		std::map<ResId, std::thread> workers;
 		std::recursive_mutex workerLock;
+		std::vector<std::thread> doneWorkers;
+		std::mutex doneWorkersLock;
 
 		std::shared_ptr<ResourceHandle> find(ResId res);
 		void update(std::shared_ptr<ResourceHandle> handle);

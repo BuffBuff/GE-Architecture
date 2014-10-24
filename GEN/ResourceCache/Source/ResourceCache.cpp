@@ -126,6 +126,16 @@ namespace GENA
 		{
 			completionCallback(handle, userData);
 		}
+		
+		std::thread me;
+		{
+			std::lock_guard<std::recursive_mutex> rLock(workerLock);
+			me = std::move(workers[res]);
+			workers.erase(res);
+		}
+
+		std::lock_guard<std::mutex> lock(doneWorkersLock);
+		doneWorkers.push_back(std::move(me));
 	}
 
 	void ResourceCache::free(std::shared_ptr<ResourceHandle> gonner)
@@ -211,16 +221,6 @@ namespace GENA
 		resources.erase(handle->resource);
 		leastRecentlyUsed.remove(handle);
 
-		{
-			std::unique_lock<std::recursive_mutex> lock(workerLock);
-
-			if (workers.count(handle->resource) > 0)
-			{
-				workers[handle->resource].join();
-				workers.erase(handle->resource);
-			}
-		}
-
 		std::weak_ptr<ResourceHandle> weakGonner = handle;
 		handle.reset();
 		handle = weakGonner.lock();
@@ -259,6 +259,12 @@ namespace GENA
 			t.second.join();
 		}
 		workers.clear();
+
+		for (auto& t : doneWorkers)
+		{
+			t.join();
+		}
+		doneWorkers.clear();
 
 		while (!leastRecentlyUsed.empty())
 		{
@@ -324,6 +330,13 @@ namespace GENA
 		}
 
 		completionCallback(handle, userData);
+
+		std::lock_guard<std::mutex> lock(doneWorkersLock);
+		for (auto& doneThread : doneWorkers)
+		{
+			doneThread.join();
+		}
+		doneWorkers.clear();
 	}
 
 	ResourceCache::ResId ResourceCache::findByPath(const std::string path) const
