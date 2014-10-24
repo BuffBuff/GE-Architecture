@@ -22,10 +22,12 @@
 1064828532 dds      assets/textures/WoodDark_NRM.dds
 1109839746 btx      assets/models/MarketBox2.btx
 1115681375 hlsl     assets/shaders/SSAO.hlsl
+1163921578 btx      assets/models/Street1.btx
 1169659580 hlsl     assets/shaders/GeometryPass.hlsl
 1228070995 dds      assets/textures/Sign1_COLOR.dds
 1293051650 btx      assets/models/MarketBox1.btx
 1332693070 hlsl     assets/shaders/ShadowMapGeometry.hlsl
+1429880472 dds      assets/textures/StreetTiles_NRM.dds
 1595862449 hlsl     assets/shaders/SSAO_Blur.hlsl
 1712327715 btx      assets/models/Wagon3.btx
 1769519854 btx      assets/models/Sign1.btx
@@ -48,6 +50,7 @@
 2641445771 dds      assets/textures/Steel_COLOR.dds
 2676459878 dds      assets/textures/RoofTileCheck_COLOR.dds
 2784892733 room     assets/rooms/room1.txt
+2880823243 dds      assets/textures/StreetTiles_COLOR.dds
 3111365884 dds      assets/textures/Crate_NRM.dds
 3144140596 dds      assets/textures/Crate_COLOR.dds
 3189980534 dds      assets/textures/Sign1_NRM.dds
