@@ -11,12 +11,14 @@ namespace GENA
 		buffer(std::move(buffer)),
 		resCache(resCache)
 	{
+		std::cout << "Resource created: " << resCache->findPath(resource) << std::endl;
 	}
 
 	ResourceHandle::~ResourceHandle()
 	{
+		size_t memSize = buffer.size();
 		buffer.clear();
-		resCache->memoryHasBeenFreed(buffer.size(), resource);
+		resCache->memoryHasBeenFreed(memSize, resource);
 		std::cerr << "Resource released: " << resCache->findPath(resource) << std::endl;
 	}
 
