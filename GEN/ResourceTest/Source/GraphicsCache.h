@@ -127,24 +127,6 @@ public:
 	void asyncLoadModel(std::string modelId, ResId resId, GCreatedHandler doneCallback);
 	void asyncLoadTexture(std::string textureId, ResId resId, GCreatedHandler doneCallback);
 
-	void waitForModel(std::string modelId)
-	{
-		// check if in queue?
-		while (modelResMap.count(modelId) == 0)
-		{
-			doWork();
-		}
-	}
-
-	void waitForTexture(std::string textureId)
-	{
-		// check if in queue?
-		while (textureResMap.count(textureId) == 0)
-		{
-			doWork();
-		}
-	}
-
 private:
 	void loadModelTexture(std::string textureId, ModelReqP modelReq);
 	
