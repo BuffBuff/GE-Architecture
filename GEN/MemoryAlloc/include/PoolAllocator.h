@@ -42,6 +42,8 @@ namespace GENA
 		 * Constructs a pool allocator with a fixed pool size.
 		 */
 		explicit PoolAllocator(uint32_t nrOfChunks)
+			: allocatedChunks(0),
+			maxAllocatedChunks(0)
 		{
 			freeList = nullptr;
 
@@ -69,6 +71,12 @@ namespace GENA
 			void* mem = (void*)freeList;
 			freeList = freeList->next;
 
+			++allocatedChunks;
+			if (allocatedChunks > maxAllocatedChunks)
+			{
+				maxAllocatedChunks = allocatedChunks;
+			}
+
 			return mem;
 		}
 
@@ -87,6 +95,13 @@ namespace GENA
 			Chunk* chunk = (Chunk*)mem;
 			chunk->next = freeList;
 			freeList = chunk;
+
+			--allocatedChunks;
+		}
+
+		size_t getMaxAllocatedChunks() const
+		{
+			return maxAllocatedChunks;
 		}
 
 	private:
@@ -102,6 +117,9 @@ namespace GENA
 
 		std::vector<Chunk> memoryBuffer;
 		Chunk* freeList;
+
+		size_t allocatedChunks;
+		size_t maxAllocatedChunks;
 		
 		SpinLock spin;
 	};

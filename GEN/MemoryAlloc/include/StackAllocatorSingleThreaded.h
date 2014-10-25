@@ -45,11 +45,18 @@ namespace GENA
 		 */
 		void clear();
 
+		/**
+		 * Get the maximum stack size used since the stack was created.
+		 */
+		size_t getMaxAllocated() const;
+
 	private:
 		std::vector<char> buffer;
+		size_t maxAllocated;
 	};
 
 	inline StackAllocatorSingleThreaded::StackAllocatorSingleThreaded(uint32_t stackSizeBytes)
+		: maxAllocated(0)
 	{
 		buffer.reserve(stackSizeBytes);
 	}
@@ -65,6 +72,11 @@ namespace GENA
 		}
 
 		buffer.resize(buffer.size() + sizeBytes + offset);
+
+		if (buffer.size() > maxAllocated)
+		{
+			maxAllocated = buffer.size();
+		}
 
 		return (char*)currPos + offset;
 	}
@@ -82,5 +94,10 @@ namespace GENA
 	inline void StackAllocatorSingleThreaded::clear()
 	{
 		buffer.clear();
+	}
+
+	inline size_t StackAllocatorSingleThreaded::getMaxAllocated() const
+	{
+		return maxAllocated;
 	}
 }

@@ -96,6 +96,9 @@ private:
 	typedef AllocDeleter<typename GRHAlloc, GraphicsHandle> GRHAllocDeleter;
 
 	GRHAlloc graphAlloc;
+	size_t maxGraphAlloced;
+	size_t maxComAlloced;
+
 	std::vector<ModelReqP> createModelQueue;
 	std::vector<TextureReq> createTextureQueue;
 	std::vector<ModelRem> removeModelQueue;
@@ -119,6 +122,8 @@ public:
 		: graphics(graphics),
 		cache(cache),
 		graphAlloc(128),
+		maxGraphAlloced(0),
+		maxComAlloced(0),
 		stack(stack)
 	{
 	}

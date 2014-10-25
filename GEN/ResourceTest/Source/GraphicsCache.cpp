@@ -15,6 +15,8 @@ GraphicsCache::~GraphicsCache()
 	clear();
 }
 
+static COMAlloc comAlloc(128);
+
 void GraphicsCache::doWork()
 {
 	{
@@ -193,6 +195,20 @@ void GraphicsCache::doWork()
 
 		stack->freeToMarker(baseMarker);
 	}
+
+	size_t curGraphAlloced = graphAlloc.getMaxAllocatedChunks();
+	if (curGraphAlloced > maxGraphAlloced)
+	{
+		maxGraphAlloced = curGraphAlloced;
+		std::cout << "New max number of GraphicsHandles: " << curGraphAlloced << std::endl;
+	}
+
+	size_t curComAlloced = comAlloc.getMaxAllocatedChunks();
+	if (curComAlloced > maxComAlloced)
+	{
+		maxComAlloced = curComAlloced;
+		std::cout << "New max number of CompletionHandlers: " << curComAlloced << std::endl;
+	}
 }
 
 void GraphicsCache::clear()
@@ -201,8 +217,6 @@ void GraphicsCache::clear()
 	textureResMap.clear();
 	doWork();
 }
-
-static COMAlloc comAlloc(128);
 
 static void completionHelper(std::shared_ptr<ResourceHandle> resource, void* userData)
 {

@@ -301,6 +301,7 @@ int main(int argc, char* argv[])
 	cl::time_point prevTime = cl::now();
 
 	uint64_t maxCacheUsage = 0;
+	size_t maxStackUsage = 0;
 
 	while (!close)
 	{
@@ -374,6 +375,13 @@ int main(int argc, char* argv[])
 		{
 			maxCacheUsage = newCacheUsage;
 			std::cout << "New cache max: " << maxCacheUsage << std::endl;
+		}
+
+		size_t newStackUsage = stack.getMaxAllocated();
+		if (newStackUsage > maxStackUsage)
+		{
+			maxStackUsage = newStackUsage;
+			std::cout << "New stack max: " << maxStackUsage << std::endl;
 		}
 
 		float cosP = cos(pitch);
