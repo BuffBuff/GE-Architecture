@@ -15,6 +15,8 @@
 #include <ResourceZipFile.h>
 #include <ResourceCache.h>
 
+#include <StackAllocatorSingleThreaded.h>
+
 #include <IGraphics.h>
 
 #include <chrono>
@@ -149,6 +151,8 @@ int main(int argc, char* argv[])
 	cache.init();
 	cache.registerLoader(std::shared_ptr<IResourceLoader>(new RoomResourceLoader()));
 
+	GENA::StackAllocatorSingleThreaded stack(10 * 1024);
+
 	Window win;
 
 	bool close = false;
@@ -268,7 +272,7 @@ int main(int argc, char* argv[])
 	graphics->setLoadModelTextureCallBack(loadModelTexture, &state);
 	graphics->setReleaseModelTextureCallBack(releaseModelTexture, &state);
 
-	GraphicsCache gCache(graphics, &cache);
+	GraphicsCache gCache(graphics, &cache, &stack);
 	ggCache = &gCache;
 
 	ResId skyDomeId = cache.findByPath("assets/textures/Skybox1_COLOR.dds");

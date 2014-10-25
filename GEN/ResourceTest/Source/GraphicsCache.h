@@ -6,6 +6,8 @@
 #include <ResourceCache.h>
 #include <ResourceHandle.h>
 
+#include <StackAllocatorSingleThreaded.h>
+
 #include <atomic>
 #include <functional>
 #include <forward_list>
@@ -110,11 +112,14 @@ private:
 	IGraphics* graphics;
 	GENA::ResourceCache* cache;
 
+	GENA::StackAllocatorSingleThreaded* stack;
+
 public:
-	GraphicsCache(IGraphics* graphics, GENA::ResourceCache* cache)
+	GraphicsCache(IGraphics* graphics, GENA::ResourceCache* cache, GENA::StackAllocatorSingleThreaded* stack)
 		: graphics(graphics),
 		cache(cache),
-		graphAlloc(128)
+		graphAlloc(128),
+		stack(stack)
 	{
 	}
 	~GraphicsCache();

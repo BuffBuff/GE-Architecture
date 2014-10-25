@@ -88,14 +88,26 @@ void GraphicsCache::doWork()
 	}
 
 	{
+		typedef GENA::StackAllocatorSingleThreaded::Marker Marker;
+		Marker baseMarker = stack->getMarker();
+
 		std::lock_guard<std::recursive_mutex> lock(modelResLock);
 
-		std::vector<ModelReqP> savedModReq;
+		size_t numSavedModReq = 0;
+		ModelReqP* savedStart = nullptr;
+
 		for (auto& modReq : createModelQueue)
 		{
 			if (modReq->texturesToLoad > 0)
 			{
-				savedModReq.push_back(std::move(modReq));
+				ModelReqP* putPos = (ModelReqP*)stack->alloc(sizeof(ModelReqP), _alignof(ModelReqP));
+				if (savedStart == nullptr)
+				{
+					savedStart = putPos;
+				}
+				new (putPos) ModelReqP(std::move(modReq));
+				++numSavedModReq;
+
 				continue;
 			}
 			if(g_CText)
@@ -105,21 +117,28 @@ void GraphicsCache::doWork()
 
 			ModelBinaryLoader loader;
 			loader.loadBinaryFromMemory(buff.data(), buff.size());
+			
+			Marker loadMarker = stack->getMarker();
 
-			std::vector<CMaterial> mats;
+			const auto& materials = loader.getMaterial();
+			CMaterial* mats = (CMaterial*)stack->alloc(sizeof(CMaterial) * materials.size(), _alignof(CMaterial));
+			CMaterial* currMat = mats;
 			for (const Material& mat : loader.getMaterial())
 			{
-				mats.push_back(CMaterial());
-				mats.back().m_DiffuseMap = mat.m_DiffuseMap.c_str();
-				mats.back().m_NormalMap = mat.m_NormalMap.c_str();
-				mats.back().m_SpecularMap = mat.m_SpecularMap.c_str();
+				currMat->m_DiffuseMap = mat.m_DiffuseMap.c_str();
+				currMat->m_NormalMap = mat.m_NormalMap.c_str();
+				currMat->m_SpecularMap = mat.m_SpecularMap.c_str();
+				++currMat;
 			}
-			std::vector<CMaterialBuffer> matBuffs;
+
+			const auto& matBuffers = loader.getMaterialBuffer();
+			CMaterialBuffer* matBuffs = (CMaterialBuffer*)stack->alloc(sizeof(CMaterialBuffer) * matBuffers.size(), _alignof(CMaterialBuffer));
+			CMaterialBuffer* currMatBuff = matBuffs;
 			for (const MaterialBuffer& matBuf : loader.getMaterialBuffer())
 			{
-				matBuffs.push_back(CMaterialBuffer());
-				matBuffs.back().start = matBuf.start;
-				matBuffs.back().length = matBuf.length;
+				currMatBuff->start = matBuf.start;
+				currMatBuff->length = matBuf.length;
+				++currMatBuff;
 			}
 
 			const void* vertData;
@@ -139,8 +158,10 @@ void GraphicsCache::doWork()
 				numVerts = loader.getStaticVertexBuffer().size();
 			}
 
-			graphics->createModel(modReq->modelId.c_str(), mats.data(), mats.size(), matBuffs.data(), matBuffs.size(),
+			graphics->createModel(modReq->modelId.c_str(), mats, materials.size(), matBuffs, matBuffers.size(),
 				loader.getAnimated(), loader.getTransparent(), vertData, vertSize, numVerts, loader.getBoundingVolume().data());
+
+			stack->freeToMarker(loadMarker);
 			
 			if (modelResMap.count(modReq->modelId) > 0)
 			{
@@ -162,7 +183,15 @@ void GraphicsCache::doWork()
 				handler(resHandle);
 			}
 		}
-		std::swap(createModelQueue, savedModReq);
+		createModelQueue.clear();
+
+		for (size_t i = 0; i < numSavedModReq; ++i)
+		{
+			createModelQueue.push_back(savedStart[i]);
+			savedStart[i].~ModelReqP();
+		}
+
+		stack->freeToMarker(baseMarker);
 	}
 }
 
