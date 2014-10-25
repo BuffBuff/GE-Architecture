@@ -104,9 +104,13 @@ namespace GENA
 		const Entry& entry = index.getEntry(id);
 		uLongf destLen = (uLongf)entry.fileSize;
 		Bytef *src = (Bytef*)malloc((size_t)entry.compSize);
-		std::lock_guard<std::mutex> lock(archiveLock);
-		archive->seekg(entry.filepos);
-		archive->read((char*)src, entry.compSize);
+
+		{
+			std::lock_guard<std::mutex> lock(archiveLock);
+			archive->seekg(entry.filepos);
+			archive->read((char*)src, entry.compSize);
+		}
+
 		uncompress((Bytef *)buffer, &destLen, src, (uLongf)entry.compSize);
 
 		free(src);
