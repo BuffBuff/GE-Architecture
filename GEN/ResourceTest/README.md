@@ -7,10 +7,13 @@ a resource cache, and is thus very basic.
 Controls
 --------
 
-W and S: Move forward and backward along a locked track.
-L: Toggle extra logging on and off. Default: On.
-Esc: Exit the program.
-Mouse: Turn the camera.
+__W and S__: Move forward and backward along a locked track.
+
+__L__: Toggle extra logging on and off. Default: On.
+
+__Esc__: Exit the program.
+
+__Mouse__: Turn the camera.
 
 Source code
 -----------
@@ -23,7 +26,7 @@ another project found here
 
 Authors
 -------
-Philip Andersson
-Fredrik Cronqvist
-Robin Karlsson
-Sebastian Larsson
+- Philip Andersson
+- Fredrik Cronqvist
+- Robin Karlsson
+- Sebastian Larsson
